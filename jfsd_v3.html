@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java FSD Placement OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07080a;--bg2:#0e1014;--bg3:#14161b;--bg4:#1c1f26;--bg5:#23272f;
+  --bd:rgba(255,255,255,0.06);--bd2:rgba(255,255,255,0.03);
+  --t:#eef0f4;--t2:#8b909e;--t3:#525660;
+  --orange:#f97316;--amber:#f59e0b;--teal:#14b8a6;
+  --blue:#3b82f6;--green:#22c55e;--red:#ef4444;--purple:#a855f7;
+  --sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:8px;--r2:12px;--r3:16px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--t);font-size:14px;line-height:1.6;overflow-x:hidden}
+
+/* LAYOUT */
+.shell{display:flex;min-height:100vh}
+.sidebar{width:240px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--bd);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:200;display:flex;flex-direction:column}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--bg5)}
+.main{margin-left:240px;flex:1;min-height:100vh}
+
+/* SIDEBAR */
+.sb-brand{padding:20px;border-bottom:1px solid var(--bd)}
+.sb-logo{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.sb-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--orange),var(--amber));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;font-family:var(--mono)}
+.sb-name{font-size:13px;font-weight:700;line-height:1.2}
+.sb-sub{font-size:10px;color:var(--t3);font-family:var(--mono)}
+.sb-prog{padding:12px 20px;border-bottom:1px solid var(--bd)}
+.sp-label{display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-bottom:6px;font-family:var(--mono)}
+.sp-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.sp-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--amber));border-radius:2px;transition:width .5s ease}
+.sb-section{padding:10px 12px 4px}
+.sb-sec-label{font-size:9.5px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--t3);padding:0 8px;margin-bottom:2px}
+.sb-btn{display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;border:none;background:none;color:var(--t2);font-family:var(--sans);font-size:12.5px;font-weight:500;cursor:pointer;border-radius:6px;text-align:left;transition:all .12s}
+.sb-btn:hover{background:var(--bg3);color:var(--t)}
+.sb-btn.active{background:rgba(249,115,22,.12);color:var(--orange)}
+.sb-dot{width:5px;height:5px;border-radius:50%;background:var(--bg5);flex-shrink:0;transition:background .12s}
+.sb-btn.active .sb-dot{background:var(--orange)}
+.sb-num{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--t3)}
+.sb-footer{margin-top:auto;padding:14px 20px;border-top:1px solid var(--bd)}
+
+/* HERO */
+.hero{padding:48px 48px 36px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-80px;right:-80px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,.08) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);border-radius:20px;padding:4px 12px;font-family:var(--mono);font-size:10px;color:var(--orange);margin-bottom:16px}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--orange);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:32px;font-weight:800;line-height:1.15;margin-bottom:10px;letter-spacing:-.5px}
+.hero h1 span{background:linear-gradient(135deg,var(--orange),var(--amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-desc{color:var(--t2);font-size:14px;max-width:600px;margin-bottom:24px;line-height:1.7}
+.hero-stats{display:flex;flex-wrap:wrap;gap:10px}
+.stat-pill{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r);padding:10px 16px;display:flex;flex-direction:column}
+.stat-num{font-size:20px;font-weight:700;font-family:var(--mono);color:var(--orange)}
+.stat-lbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em}
+
+/* SECTIONS */
+.sec{display:none;padding:36px 48px 60px;animation:fadein .2s ease}
+.sec.active{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.sec-eye{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--orange);margin-bottom:6px}
+.sec-title{font-size:24px;font-weight:800;letter-spacing:-.3px;margin-bottom:6px}
+.sec-sub{color:var(--t2);font-size:13.5px;margin-bottom:30px;line-height:1.7}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:18px 20px;margin-bottom:12px}
+.card-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.card-title{font-size:14px;font-weight:700}
+.card p,.card-body{color:var(--t2);font-size:13px;line-height:1.75}
+.card p+p{margin-top:7px}
+.card-grid{display:grid;gap:12px}
+.cg2{grid-template-columns:1fr 1fr}
+.cg3{grid-template-columns:1fr 1fr 1fr}
+.cg4{grid-template-columns:1fr 1fr 1fr 1fr}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10.5px;font-family:var(--mono);font-weight:500;flex-shrink:0}
+.bo{background:rgba(249,115,22,.13);color:var(--orange)}
+.ba{background:rgba(245,158,11,.13);color:var(--amber)}
+.bt{background:rgba(20,184,166,.12);color:var(--teal)}
+.bb{background:rgba(59,130,246,.12);color:var(--blue)}
+.bg{background:rgba(34,197,94,.12);color:var(--green)}
+.br{background:rgba(239,68,68,.12);color:var(--red)}
+.bp{background:rgba(168,85,247,.12);color:var(--purple)}
+.bgr{background:var(--bg4);color:var(--t2)}
+
+.chip{display:inline-block;background:var(--bg4);color:var(--t2);border-radius:4px;font-size:11px;font-family:var(--mono);padding:2px 7px;border:1px solid var(--bd)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.divider{border:none;border-top:1px solid var(--bd);margin:24px 0}
+.hl{background:rgba(249,115,22,.06);border-left:3px solid var(--orange);border-radius:0 var(--r) var(--r) 0;padding:12px 16px;margin:12px 0;color:var(--t);font-size:13px;line-height:1.7}
+.hl strong{color:var(--orange)}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden;margin-bottom:18px}
+.ir{display:flex;justify-content:space-between;align-items:baseline;padding:9px 16px;border-bottom:1px solid var(--bd2);font-size:13px}
+.ir:last-child{border-bottom:none}
+.ik{color:var(--t2)}.iv{font-weight:600;color:var(--t)}
+
+/* SKILL TABLE */
+.stbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.stbl th{text-align:left;padding:9px 12px;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg3);font-weight:500}
+.stbl td{padding:10px 12px;border-bottom:1px solid var(--bd2);vertical-align:middle}
+.stbl tr:hover td{background:var(--bg3)}
+.stbl tr:last-child td{border-bottom:none}
+.sk-name{font-weight:700;font-size:13px;color:var(--t)}
+.sk-why{color:var(--t2);font-size:11.5px;margin-top:2px}
+
+/* METER */
+.mrow{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.mlbl{width:160px;font-size:12.5px;color:var(--t2);flex-shrink:0}
+.mbar{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.mfill{height:100%;border-radius:3px;background:var(--orange)}
+.mfill.t{background:var(--teal)}.mfill.a{background:var(--amber)}.mfill.g{background:var(--green)}.mfill.b{background:var(--blue)}
+
+/* DAILY PLAN */
+.phase-block{border:1px solid var(--bd);border-radius:var(--r2);margin-bottom:16px;overflow:hidden}
+.phase-hd{display:flex;align-items:center;gap:10px;padding:14px 18px;background:var(--bg2);cursor:pointer;user-select:none;transition:background .12s}
+.phase-hd:hover{background:var(--bg3)}
+.phase-hd-title{font-size:13.5px;font-weight:700;flex:1}
+.phase-toggle{font-size:18px;color:var(--t3);transition:transform .2s;margin-left:auto}
+.phase-body{display:none;background:var(--bg2)}
+.phase-body.open{display:block}
+.week-block{border-top:1px solid var(--bd)}
+.week-hd{padding:11px 18px;background:var(--bg3);cursor:pointer;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600}
+.week-hd:hover{background:var(--bg4)}
+.week-toggle{margin-left:auto;font-size:14px;color:var(--t3);transition:transform .2s}
+.week-days{display:none}
+.week-days.open{display:block}
+.day-row{display:grid;grid-template-columns:90px 1fr;border-top:1px solid var(--bd2)}
+.day-lbl{background:var(--bg3);padding:10px 12px;border-right:1px solid var(--bd);font-family:var(--mono);font-size:10.5px;color:var(--t3);display:flex;flex-direction:column;gap:2px}
+.day-lbl .dn{color:var(--t2);font-weight:500}
+.day-cnt{padding:10px 14px}
+.day-blks{display:flex;flex-wrap:wrap;gap:5px}
+.dblk{padding:3px 10px;border-radius:4px;font-size:11.5px;font-family:var(--mono);cursor:pointer;transition:opacity .12s;border:none;background:none}
+.dblk:hover{opacity:.75}
+.db-java{background:rgba(249,115,22,.12);color:var(--orange)}
+.db-dsa{background:rgba(245,158,11,.12);color:var(--amber)}
+.db-sql{background:rgba(59,130,246,.12);color:var(--blue)}
+.db-spring{background:rgba(20,184,166,.12);color:var(--teal)}
+.db-react{background:rgba(34,197,94,.12);color:var(--green)}
+.db-proj{background:rgba(239,68,68,.12);color:var(--red)}
+.db-cs{background:rgba(168,85,247,.12);color:var(--purple)}
+.db-rev{background:var(--bg4);color:var(--t2)}
+
+/* TIMELINE */
+.timeline{padding-left:28px;position:relative}
+.timeline::before{content:'';position:absolute;left:7px;top:12px;bottom:12px;width:1px;background:var(--bd)}
+.tli{position:relative;margin-bottom:24px}
+.tli::before{content:'';position:absolute;left:-23px;top:6px;width:14px;height:14px;border-radius:50%;background:var(--bg2);border:2px solid var(--orange)}
+.tli:nth-child(3n+2)::before{border-color:var(--teal)}
+.tli:nth-child(3n)::before{border-color:var(--amber)}
+.tli-eye{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--orange);margin-bottom:3px}
+.tli:nth-child(3n+2) .tli-eye{color:var(--teal)}
+.tli:nth-child(3n) .tli-eye{color:var(--amber)}
+.tli-title{font-size:15px;font-weight:700;margin-bottom:5px}
+.tli-body{color:var(--t2);font-size:13px;line-height:1.7}
+.tli-check{margin-top:8px;padding:7px 12px;background:rgba(34,197,94,.07);border-radius:6px;font-size:12px;color:var(--green)}
+
+/* RESOURCE PILLS */
+.res-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.rpill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:1px solid var(--bd);border-radius:20px;font-size:11px;color:var(--t2);background:var(--bg3);cursor:pointer;transition:all .12s;text-decoration:none}
+.rpill:hover{border-color:var(--orange);color:var(--orange)}
+.rpill .rdot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.rdot-w{background:var(--red)}.rdot-r{background:var(--blue)}.rdot-p{background:var(--green)}
+
+/* PROJECTS */
+.proj-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);margin-bottom:20px;overflow:hidden}
+.proj-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 20px;background:var(--bg3);border-bottom:1px solid var(--bd)}
+.proj-hd h3{font-size:15px;font-weight:700}
+.proj-body{padding:20px}
+.proj-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:14px}
+.proj-col h4{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:7px}
+.proj-col ul{list-style:none}
+.proj-col li{font-size:12.5px;color:var(--t2);padding:2px 0 2px 12px;position:relative;line-height:1.5}
+.proj-col li::before{content:'→';position:absolute;left:0;color:var(--orange);font-size:10px}
+.ts-strip{display:flex;margin:12px 0;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.ts-blk{flex:1;padding:9px 10px;background:var(--bg3);border-right:1px solid var(--bd);font-size:11px}
+.ts-blk:last-child{border-right:none}
+.ts-wk{font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:3px}
+.ts-task{color:var(--t2)}
+.res-desc{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:var(--r);padding:11px 14px;margin-top:11px;font-size:12.5px;color:var(--t);line-height:1.7}
+.res-desc .lbl{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--green);margin-bottom:5px}
+
+/* CS BLOCKS */
+.cs-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);margin-bottom:14px;overflow:hidden}
+.cs-hd{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:var(--bg3);cursor:pointer}
+.cs-hd:hover{background:var(--bg4)}
+.cs-body{display:none;padding:18px}
+.cs-body.open{display:block}
+.pf{display:flex;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;margin:10px 0}
+.pf-step{flex:1;padding:9px 12px;background:var(--bg3);border-right:1px solid var(--bd)}
+.pf-step:last-child{border-right:none}
+.pf-wk{font-family:var(--mono);font-size:9px;color:var(--orange);margin-bottom:2px}
+.pf-topic{font-size:12px;font-weight:700;margin-bottom:2px}
+.pf-sub{font-size:11px;color:var(--t2)}
+
+/* MOCK */
+.mock-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:18px 20px;margin-bottom:12px}
+.mock-card h3{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.qlist{color:var(--t2);font-size:13px;line-height:1.9}
+
+/* CHECKPOINT */
+.ck-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden;margin-bottom:12px}
+.ck-hd{display:flex;align-items:center;gap:10px;padding:11px 16px;background:var(--bg3);border-bottom:1px solid var(--bd)}
+.ck-week{font-family:var(--mono);font-size:10px;color:var(--teal);background:rgba(20,184,166,.1);padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.1em}
+.ck-title{font-size:13px;font-weight:700;flex:1}
+.ck-status{font-family:var(--mono);font-size:10px}
+.ck-items{padding:12px 16px}
+.ck-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:13px;color:var(--t2);cursor:pointer}
+.ck-box{width:15px;height:15px;border:1.5px solid var(--bd);border-radius:3px;flex-shrink:0;margin-top:2px;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.ck-item.done .ck-box{background:var(--green);border-color:var(--green)}
+.ck-item.done .ck-box::after{content:'✓';color:#000;font-size:9px;font-weight:700}
+.ck-item.done span{color:var(--t);text-decoration:line-through;text-decoration-color:var(--t3)}
+
+/* FINAL CHECKLIST */
+.cl-sec{margin-bottom:26px}
+.cl-sec-title{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:10px}
+.cl-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.cl-item{display:flex;align-items:flex-start;gap:9px;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:10px 13px;cursor:pointer;transition:all .12s;font-size:12.5px;color:var(--t2)}
+.cl-item:hover{background:var(--bg3)}
+.cl-item.done{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.05)}
+.cl-item.done .cl-box{background:var(--green);border-color:var(--green)}
+.cl-item.done .cl-box::after{content:'✓';color:#000;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.cl-item.done span{color:var(--t)}
+.cl-box{width:15px;height:15px;border:1.5px solid var(--bd);border-radius:3px;flex-shrink:0;margin-top:1px;flex-shrink:0}
+
+/* READINESS GAUGE */
+.gauge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.gauge-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:16px}
+.gauge-label{font-size:12px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.gauge-pct{font-family:var(--mono);font-size:11px;color:var(--t3)}
+.gauge-bar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.gauge-fill{height:100%;border-radius:3px;transition:width .6s ease}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r3);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:modalin .2s ease}
+@keyframes modalin{from{opacity:0;transform:translateY(-16px)scale(.97)}to{opacity:1;transform:none}}
+.modal-hd{display:flex;align-items:flex-start;justify-content:space-between;padding:20px 20px 0;margin-bottom:14px}
+.modal-title{font-size:16px;font-weight:700;line-height:1.3}
+.modal-close{background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer;padding:0 4px;line-height:1;margin-top:-2px}
+.modal-close:hover{color:var(--t)}
+.modal-body{padding:0 20px 20px}
+.modal-skill-desc{color:var(--t2);font-size:13px;line-height:1.7;margin-bottom:16px}
+.learn-tabs{display:flex;gap:6px;margin-bottom:14px}
+.ltab{padding:7px 16px;border:1px solid var(--bd);border-radius:6px;background:none;color:var(--t2);font-family:var(--sans);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .12s}
+.ltab:hover{background:var(--bg3);color:var(--t)}
+.ltab.active{background:var(--orange);border-color:var(--orange);color:#fff}
+.learn-panel{display:none}.learn-panel.active{display:block}
+.res-item{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:8px;cursor:pointer;transition:all .12s;text-decoration:none;color:var(--t)}
+.res-item:hover{border-color:var(--orange);background:var(--bg4)}
+.ri-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ri-title{font-size:13px;font-weight:600}
+.ri-sub{font-size:11.5px;color:var(--t2)}
+.modal-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.meta-item{background:var(--bg3);border-radius:var(--r);padding:9px 12px}
+.meta-lbl{font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:3px}
+.meta-val{font-size:13px;font-weight:600;color:var(--t)}
+
+@media(max-width:900px){
+  .sidebar{display:none}.main{margin-left:0}
+  .hero,.sec{padding:24px 20px 40px}
+  .cg2,.cg3,.cg4,.proj-grid,.cl-grid{grid-template-columns:1fr}
+  .pf{flex-direction:column}.ts-strip{flex-direction:column}
+  .gauge-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">
+      <div class="sb-icon">J</div>
+      <div>
+        <div class="sb-name">Java FSD Placement OS</div>
+        <div class="sb-sub">v3.0 · May 2025 → Dec 2025</div>
+      </div>
+    </div>
+  </div>
+  <div class="sb-prog">
+    <div class="sp-label"><span>Checklist Progress</span><span id="prog-txt">0 / 48</span></div>
+    <div class="sp-bar"><div class="sp-fill" id="prog-bar" style="width:0%"></div></div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-sec-label">Home</div>
+    <button class="sb-btn active" onclick="show('home',this)"><span class="sb-dot"></span>Dashboard</button>
+  </div>
+  <div class="sb-section">
+    <div class="sb-sec-label">Plan</div>
+    <button class="sb-btn" onclick="show('daily',this)"><span class="sb-dot"></span>Daily Roadmap</button>
+    <button class="sb-btn" onclick="show('monthly',this)"><span class="sb-dot"></span>Monthly Goals</button>
+    <button class="sb-btn" onclick="show('checkpoints',this)"><span class="sb-dot"></span>Weekly Checkpoints</button>
+  </div>
+  <div class="sb-section">
+    <div class="sb-sec-label">Skills</div>
+    <button class="sb-btn" onclick="show('skills',this)"><span class="sb-dot"></span>Skill Map</button>
+    <button class="sb-btn" onclick="show('cs',this)"><span class="sb-dot"></span>CS Fundamentals</button>
+  </div>
+  <div class="sb-section">
+    <div class="sb-sec-label">Build</div>
+    <button class="sb-btn" onclick="show('projects',this)"><span class="sb-dot"></span>Project Plans</button>
+  </div>
+  <div class="sb-section">
+    <div class="sb-sec-label">Interview</div>
+    <button class="sb-btn" onclick="show('interview',this)"><span class="sb-dot"></span>Interview Prep</button>
+    <button class="sb-btn" onclick="show('mock',this)"><span class="sb-dot"></span>Mock Interview Plan</button>
+    <button class="sb-btn" onclick="show('softskills',this)"><span class="sb-dot"></span>Soft Skills</button>
+  </div>
+  <div class="sb-section">
+    <div class="sb-sec-label">Final</div>
+    <button class="sb-btn" onclick="show('checklist',this)"><span class="sb-dot"></span>Readiness Checklist</button>
+    <button class="sb-btn" onclick="show('outcome',this)"><span class="sb-dot"></span>Final Outcome</button>
+  </div>
+  <div class="sb-footer" style="font-size:11px;color:var(--t3)">
+    🟠 Click any skill block to open the <strong style="color:var(--t2)">Learn Modal</strong> with Watch → Read → Practice resources.
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- HOME -->
+<div class="hero" id="s-home" style="display:block">
+  <div class="hero-badge"><span class="dot"></span>LIVE · 8-Month Execution System · May 10 → Dec 31, 2025</div>
+  <h1>Java Full Stack<br><span>Placement OS</span></h1>
+  <p class="hero-desc">Complete guided preparation system for Java Full Stack Developer campus placements in India. Daily execution plans, interactive learning resources, project timelines, weekly checkpoints, and placement readiness tracking — all in one place.</p>
+  <div class="hero-stats">
+    <div class="stat-pill"><span class="stat-num">235</span><span class="stat-lbl">Study Days</span></div>
+    <div class="stat-pill"><span class="stat-num">940h</span><span class="stat-lbl">Total Hours</span></div>
+    <div class="stat-pill"><span class="stat-num">4</span><span class="stat-lbl">Projects</span></div>
+    <div class="stat-pill"><span class="stat-num">24</span><span class="stat-lbl">Skill Areas</span></div>
+    <div class="stat-pill"><span class="stat-num">32</span><span class="stat-lbl">Checkpoints</span></div>
+  </div>
+</div>
+<div class="sec active" id="s-home-body">
+  <div class="hl"><strong>How to use this system:</strong> Navigate sections via the sidebar. The <strong>Daily Roadmap</strong> is your execution guide — click any coloured block to open the Learn Modal with curated Watch/Read/Practice resources. Run the <strong>Weekly Checkpoints</strong> every Sunday. Use the <strong>Readiness Checklist</strong> from Month 7 onward.</div>
+
+  <div class="card-grid cg3" style="margin-top:20px">
+    <div class="card" style="cursor:pointer" onclick="show('daily',document.querySelector('[onclick*=daily]'))">
+      <div class="card-hd"><div class="card-title">📅 Daily Roadmap</div><span class="badge bo">Start here</span></div>
+      <p>Day-by-day 4-hour study plan across all 8 months. Click any block to open resources.</p>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="show('skills',document.querySelector('[onclick*=skills]'))">
+      <div class="card-hd"><div class="card-title">🗺 Skill Map</div><span class="badge bt">24 skills</span></div>
+      <p>Complete skill analysis with priority, difficulty, and interactive Learn Modal for each.</p>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="show('projects',document.querySelector('[onclick*=projects]'))">
+      <div class="card-hd"><div class="card-title">🔨 Projects</div><span class="badge bg">4 projects</span></div>
+      <p>Full execution plans — timelines, milestones, DB schema, deployment, resume descriptions.</p>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="show('checkpoints',document.querySelector('[onclick*=checkpoints]'))">
+      <div class="card-hd"><div class="card-title">✅ Checkpoints</div><span class="badge ba">32 weeks</span></div>
+      <p>Weekly self-assessment checklists. Track ON TRACK / NEEDS IMPROVEMENT / BEHIND.</p>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="show('mock',document.querySelector('[onclick*=mock]'))">
+      <div class="card-hd"><div class="card-title">🎯 Mock Interviews</div><span class="badge bp">8 weeks</span></div>
+      <p>Structured mock interview plan with question banks, evaluation, and weekly targets.</p>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="show('checklist',document.querySelector('[onclick*=checklist]'))">
+      <div class="card-hd"><div class="card-title">🏁 Readiness Gauge</div><span class="badge br">Final gate</span></div>
+      <p>Interactive checklist tracking every skill, project, concept, and interview-readiness indicator.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="sec-eye">4-Hour Daily Structure</div>
+  <div class="sec-title" style="font-size:18px;margin-bottom:16px">How every study day is split</div>
+  <div class="card-grid cg4">
+    <div class="card" style="border-color:rgba(249,115,22,.3)">
+      <div class="card-hd"><div class="card-title" style="color:var(--orange)">Hour 1</div></div>
+      <p><strong style="color:var(--t)">Concept Learning</strong><br>Read docs, watch tutorial, take notes. Pure theory absorption. No distractions.</p>
+    </div>
+    <div class="card" style="border-color:rgba(20,184,166,.3)">
+      <div class="card-hd"><div class="card-title" style="color:var(--teal)">Hour 2</div></div>
+      <p><strong style="color:var(--t)">Coding Implementation</strong><br>Implement what you learned in Hour 1. Write real code — not copied, not pasted.</p>
+    </div>
+    <div class="card" style="border-color:rgba(245,158,11,.3)">
+      <div class="card-hd"><div class="card-title" style="color:var(--amber)">Hour 3</div></div>
+      <p><strong style="color:var(--t)">DSA / Problem Solving</strong><br>2–3 LeetCode/GFG problems. Easy until Month 2, then easy+medium mix.</p>
+    </div>
+    <div class="card" style="border-color:rgba(239,68,68,.3)">
+      <div class="card-hd"><div class="card-title" style="color:var(--red)">Hour 4</div></div>
+      <p><strong style="color:var(--t)">Project / CS / Revision</strong><br>Months 1–4: CS fundamentals. Months 5–8: project building. Sundays: full revision.</p>
+    </div>
+  </div>
+</div>
+
+<!-- DAILY ROADMAP -->
+<div class="sec" id="s-daily">
+  <div class="sec-eye">Execution Plan</div>
+  <div class="sec-title">Daily Study Roadmap</div>
+  <p class="sec-sub">Complete 8-month day-by-day plan. <strong style="color:var(--orange)">Click any coloured block</strong> to open Watch / Read / Practice resources for that topic.</p>
+  <div class="hl"><strong>Colour legend:</strong> <span class="badge bo">Java/OOP</span> <span class="badge bt">Spring Boot</span> <span class="badge ba">DSA</span> <span class="badge bb">SQL/DB</span> <span class="badge bg">React/Frontend</span> <span class="badge br">Project</span> <span class="badge bp">CS Theory</span> <span class="badge bgr">Review/Mock</span></div>
+  <div id="daily-container" style="margin-top:20px"></div>
+</div>
+
+<!-- MONTHLY GOALS -->
+<div class="sec" id="s-monthly">
+  <div class="sec-eye">Part 5</div>
+  <div class="sec-title">Monthly Goals</div>
+  <p class="sec-sub">Month-by-month milestones with weekly breakdowns — from Core Java to placement-ready.</p>
+  <div class="timeline" id="monthly-container"></div>
+</div>
+
+<!-- CHECKPOINTS -->
+<div class="sec" id="s-checkpoints">
+  <div class="sec-eye">Track Progress</div>
+  <div class="sec-title">Weekly Checkpoints</div>
+  <p class="sec-sub">Every Sunday: check these items. If you miss more than 2 in a week, slow down and catch up first. Status updates automatically.</p>
+  <div id="ck-container"></div>
+</div>
+
+<!-- SKILLS -->
+<div class="sec" id="s-skills">
+  <div class="sec-eye">Part 4</div>
+  <div class="sec-title">Complete Skill Map</div>
+  <p class="sec-sub">24 skills ranked by placement priority. <strong style="color:var(--orange)">Click any skill row</strong> to open curated Watch/Read/Practice resources.</p>
+  <div class="tbl-wrap"><table class="stbl"><thead><tr><th>Skill</th><th>Category</th><th>Priority</th><th>Level</th><th>Mandatory</th></tr></thead><tbody id="skill-tbody"></tbody></table></div>
+  <div class="divider"></div>
+  <div class="card-grid cg2">
+    <div class="card"><div class="card-title" style="margin-bottom:12px">Backend priorities</div>
+      <div class="mrow"><span class="mlbl">Core Java</span><div class="mbar"><div class="mfill" style="width:95%"></div></div></div>
+      <div class="mrow"><span class="mlbl">Spring Boot</span><div class="mbar"><div class="mfill" style="width:93%"></div></div></div>
+      <div class="mrow"><span class="mlbl">OOP</span><div class="mbar"><div class="mfill" style="width:90%"></div></div></div>
+      <div class="mrow"><span class="mlbl">SQL</span><div class="mbar"><div class="mfill" style="width:86%"></div></div></div>
+      <div class="mrow"><span class="mlbl">Hibernate/JPA</span><div class="mbar"><div class="mfill" style="width:83%"></div></div></div>
+      <div class="mrow"><span class="mlbl">REST APIs</span><div class="mbar"><div class="mfill" style="width:88%"></div></div></div>
+      <div class="mrow"><span class="mlbl">JWT Auth</span><div class="mbar"><div class="mfill" style="width:77%"></div></div></div>
+      <div class="mrow"><span class="mlbl">Collections</span><div class="mbar"><div class="mfill" style="width:81%"></div></div></div>
+    </div>
+    <div class="card"><div class="card-title" style="margin-bottom:12px">Frontend + Tools</div>
+      <div class="mrow"><span class="mlbl">React.js</span><div class="mbar"><div class="mfill a" style="width:84%"></div></div></div>
+      <div class="mrow"><span class="mlbl">JavaScript</span><div class="mbar"><div class="mfill a" style="width:80%"></div></div></div>
+      <div class="mrow"><span class="mlbl">Git/GitHub</span><div class="mbar"><div class="mfill t" style="width:90%"></div></div></div>
+      <div class="mrow"><span class="mlbl">HTML/CSS</span><div class="mbar"><div class="mfill a" style="width:72%"></div></div></div>
+      <div class="mrow"><span class="mlbl">Exception Handling</span><div class="mbar"><div class="mfill g" style="width:78%"></div></div></div>
+      <div class="mrow"><span class="mlbl">JDBC</span><div class="mbar"><div class="mfill b" style="width:63%"></div></div></div>
+      <div class="mrow"><span class="mlbl">Testing (JUnit)</span><div class="mbar"><div class="mfill g" style="width:46%"></div></div></div>
+      <div class="mrow"><span class="mlbl">Deployment</span><div class="mbar"><div class="mfill g" style="width:42%"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CS FUNDAMENTALS -->
+<div class="sec" id="s-cs">
+  <div class="sec-eye">Part 7</div>
+  <div class="sec-title">CS Fundamentals</div>
+  <p class="sec-sub">Structured preparation flows for each theory subject. <strong style="color:var(--orange)">Click any subject</strong> to expand the full prep guide.</p>
+  <div id="cs-container"></div>
+</div>
+
+<!-- PROJECTS -->
+<div class="sec" id="s-projects">
+  <div class="sec-eye">Part 6</div>
+  <div class="sec-title">Project Execution Plans</div>
+  <p class="sec-sub">4 progressively harder projects with timelines, milestones, and resume descriptions.</p>
+  <div id="projects-container"></div>
+</div>
+
+<!-- INTERVIEW PREP -->
+<div class="sec" id="s-interview">
+  <div class="sec-eye">Part 8</div>
+  <div class="sec-title">Interview Preparation</div>
+  <p class="sec-sub">Company-specific strategies and must-know question banks for every interview layer.</p>
+  <div class="card-grid cg2">
+    <div class="card"><div class="card-hd"><div class="card-title">Service companies</div><span class="badge bgr">TCS · Infosys · Wipro</span></div><p>Aptitude is the main filter. Coding = arrays/strings easy. Technical = Core Java OOP + DBMS + simple project discussion. Communication is evaluated. Prepare aptitude seriously — that's where most candidates fail.</p></div>
+    <div class="card"><div class="card-hd"><div class="card-title">Product companies</div><span class="badge ba">Zoho · Persistent · LTI</span></div><p>Harder coding (medium LeetCode). Spring Boot depth expected. SQL optimization questions appear. Full project walkthrough with cross-questions. Zoho runs multiple coding rounds — raw problem-solving ability matters most.</p></div>
+  </div>
+  <div id="interview-container" style="margin-top:16px"></div>
+</div>
+
+<!-- MOCK INTERVIEW PLAN -->
+<div class="sec" id="s-mock">
+  <div class="sec-eye">Part 8 — Extended</div>
+  <div class="sec-title">Mock Interview Plan</div>
+  <p class="sec-sub">Structured 8-week mock interview schedule starting Week 25 (Month 7). Build from self-practice to full simulated company rounds.</p>
+  <div class="hl"><strong>Rule:</strong> Start mocks in Week 25. Never wait until the final month. Pressure-test yourself early — nerves in Month 7 are practice, nerves in Month 8 are expensive.</div>
+  <div id="mock-container" style="margin-top:16px"></div>
+</div>
+
+<!-- SOFT SKILLS -->
+<div class="sec" id="s-softskills">
+  <div class="sec-eye">Part 8</div>
+  <div class="sec-title">Soft Skills Plan</div>
+  <p class="sec-sub">Weekly communication and confidence-building activities running in parallel with technical prep from Month 4 onward.</p>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-hd"><div class="card-title">"Tell me about yourself" — 60-second formula</div></div>
+    <p><strong style="color:var(--orange)">Opening (10s):</strong> "I'm [Name], completing MSc Computer Science at [College]."</p>
+    <p><strong style="color:var(--orange)">Technical identity (20s):</strong> "I specialise in Java Full Stack — Spring Boot backend with React.js frontend. Core skills: Spring Boot, REST APIs, MySQL, React."</p>
+    <p><strong style="color:var(--orange)">Project highlight (20s):</strong> "I've built [Flagship Project] — full stack with Spring Boot + JWT + React. Live on GitHub and deployed."</p>
+    <p><strong style="color:var(--orange)">Close (10s):</strong> "I'm excited about this role because [specific reason]. Ready to contribute from day one."</p>
+  </div>
+  <div id="soft-container"></div>
+</div>
+
+<!-- READINESS CHECKLIST -->
+<div class="sec" id="s-checklist">
+  <div class="sec-eye">Final Gate</div>
+  <div class="sec-title">Placement Readiness System</div>
+  <p class="sec-sub">Interactive checklist + readiness gauges. Check items as you complete them — gauges update live.</p>
+  <div class="gauge-grid" id="gauge-grid"></div>
+  <div class="divider"></div>
+  <div id="checklist-container"></div>
+</div>
+
+<!-- OUTCOME -->
+<div class="sec" id="s-outcome">
+  <div class="sec-eye">After 8 Months</div>
+  <div class="sec-title">Final Outcome</div>
+  <p class="sec-sub">Your expected profile entering placement season — November/December 2025.</p>
+  <div class="card-grid cg4">
+    <div class="card"><div style="font-size:28px;font-weight:800;font-family:var(--mono);color:var(--orange);margin-bottom:4px">4</div><div style="font-size:12px;font-weight:600;margin-bottom:4px">Live Projects</div><p style="font-size:11.5px">Auth, CRUD, Scalable API, Flagship</p></div>
+    <div class="card"><div style="font-size:28px;font-weight:800;font-family:var(--mono);color:var(--teal);margin-bottom:4px">85%</div><div style="font-size:12px;font-weight:600;margin-bottom:4px">Java Backend</div><p style="font-size:11.5px">Spring Boot, JPA, JWT, REST API</p></div>
+    <div class="card"><div style="font-size:28px;font-weight:800;font-family:var(--mono);color:var(--green);margin-bottom:4px">70%</div><div style="font-size:12px;font-weight:600;margin-bottom:4px">React Frontend</div><p style="font-size:11.5px">Hooks, routing, Axios, responsive UI</p></div>
+    <div class="card"><div style="font-size:28px;font-weight:800;font-family:var(--mono);color:var(--amber);margin-bottom:4px">80+</div><div style="font-size:12px;font-weight:600;margin-bottom:4px">DSA Problems</div><p style="font-size:11.5px">Easy + medium, enough for FSD rounds</p></div>
+  </div>
+  <div class="hl" style="margin-top:16px"><strong>The single most important thing:</strong> Deploy your projects live on Railway/Render. A working URL an interviewer can click and use is worth more than 50 LeetCode solutions for Java FSD roles. Build real things that actually work.</div>
+  <div class="divider"></div>
+  <div style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:12px">Companies you can confidently target</div>
+  <div style="display:flex;flex-wrap:wrap;gap:7px">
+    <span class="badge bo">TCS Digital</span><span class="badge bo">Infosys</span><span class="badge bo">Wipro</span><span class="badge bo">Cognizant</span><span class="badge bo">Accenture</span>
+    <span class="badge ba">Persistent</span><span class="badge ba">LTIMindtree</span><span class="badge ba">Mphasis</span><span class="badge ba">Hexaware</span>
+    <span class="badge bb">Zoho</span><span class="badge bb">Freshworks</span>
+    <span class="badge bg">Startups</span><span class="badge bg">Birlasoft</span>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- LEARN MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-hd">
+      <div>
+        <div id="modal-title" class="modal-title"></div>
+        <div id="modal-badge" style="margin-top:5px"></div>
+      </div>
+      <button class="modal-close" onclick="closeModalForce()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-desc" class="modal-skill-desc"></div>
+      <div class="learn-tabs">
+        <button class="ltab active" onclick="switchTab('watch',this)">▶ Watch</button>
+        <button class="ltab" onclick="switchTab('read',this)">📖 Read</button>
+        <button class="ltab" onclick="switchTab('practice',this)">⚡ Practice</button>
+      </div>
+      <div id="panel-watch" class="learn-panel active"></div>
+      <div id="panel-read" class="learn-panel"></div>
+      <div id="panel-practice" class="learn-panel"></div>
+      <div id="modal-meta" class="meta-grid" style="margin-top:14px"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── NAV ──────────────────────────────────────────────────────
+function show(id, btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('s-'+id);
+  if(el) el.classList.add('active');
+  if(btn) btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── SKILL DATA ───────────────────────────────────────────────
+const SKILLS=[
+  {name:'Core Java',cat:'Backend',p:'P1',level:'Intermediate',diff:'Medium',must:true,
+   why:'Foundation of all Java development. 40% of technical interviews test Core Java directly.',
+   desc:'Core Java covers the fundamental building blocks: syntax, OOP, data types, control flow, and the standard library. Every Spring Boot project is written in Java — you cannot skip this.',
+   watch:['Udemy — Tim Buchalka Java Masterclass|https://udemy.com/course/java-the-complete-java-developer-course/','Java Brains — Core Java playlist|https://youtube.com/javabrain'],
+   read:['JavaTpoint Core Java|https://javatpoint.com/java-tutorial','Baeldung Core Java|https://baeldung.com/java-tutorial'],
+   practice:['HackerRank Java (start here)|https://hackerrank.com/domains/java'],
+   tags:['Syntax','OOP Intro','Arrays','Strings','Methods']},
+  {name:'OOP',cat:'Backend',p:'P1',level:'Advanced',diff:'Medium',must:true,
+   why:'Java is built on OOP. Spring Boot itself uses DI, interfaces, and design patterns throughout.',
+   desc:'Object-Oriented Programming — the 4 pillars, SOLID principles, and design patterns — is the highest-frequency interview topic for Java roles.',
+   watch:['Kunal Kushwaha — OOP in Java|https://youtube.com/watch?v=BSVKUk58K6U','Derek Banas — Design Patterns|https://youtube.com/derekbanas'],
+   read:['Refactoring.guru — Patterns|https://refactoring.guru/design-patterns','Head First Design Patterns (O\'Reilly)|https://www.oreilly.com/library/view/head-first-design/0596007124/'],
+   practice:['Exercism Java Track|https://exercism.org/tracks/java'],
+   tags:['4 Pillars','SOLID','Singleton','Factory','Observer']},
+  {name:'Collections Framework',cat:'Backend',p:'P1',level:'Intermediate',diff:'Easy',must:true,
+   why:'Used in every real project. HashMap, ArrayList, and Set operations appear in every technical interview.',
+   desc:'Java Collections Framework provides data structures (List, Set, Map, Queue) that are used in every Java application. HashMap internals are especially important for interviews.',
+   watch:['Telusko — Java Collections|https://youtube.com/telusko','Coding with John — Collections|https://youtube.com/codingwithjohn'],
+   read:['Baeldung Collections Guide|https://baeldung.com/java-collections','GFG Java Collections|https://geeksforgeeks.org/java-collection-tutorial'],
+   practice:['LeetCode — HashMap problems|https://leetcode.com/tag/hash-table/'],
+   tags:['ArrayList','HashMap','LinkedList','Set','Iterator']},
+  {name:'Exception Handling',cat:'Backend',p:'P1',level:'Intermediate',diff:'Easy',must:true,
+   why:'Production code must handle errors gracefully. Spring Boot GlobalExceptionHandler requires this.',
+   desc:'Java exception handling (try-catch-finally, custom exceptions, checked vs unchecked) is tested in every technical round and used in every production-grade Spring Boot project.',
+   watch:['Amigoscode — Exception Handling|https://youtube.com','Programming with Mosh — Java Exceptions|https://youtube.com'],
+   read:['Baeldung — Exception Handling|https://baeldung.com/java-exceptions','JavaTpoint Exceptions|https://javatpoint.com/exception-handling-in-java'],
+   practice:['HackerRank Java Exception|https://hackerrank.com/domains/java'],
+   tags:['try-catch','Custom Exceptions','Checked vs Unchecked','finally']},
+  {name:'Multithreading Basics',cat:'Backend',p:'P2',level:'Basic',diff:'Hard',must:false,
+   why:'OS concepts link directly here. Asked in stronger technical rounds and product companies.',
+   desc:'Understanding threads, synchronization, and concurrency in Java is important for interview depth — even if you rarely use it in projects, it signals seniority.',
+   watch:['Java Brains — Multithreading|https://youtube.com/javabrain','Telusko — Java Threads|https://youtube.com/telusko'],
+   read:['Baeldung Concurrency|https://baeldung.com/java-concurrency','GFG Java Multithreading|https://geeksforgeeks.org/multithreading-in-java'],
+   practice:['LeetCode Concurrency section|https://leetcode.com/problemset/concurrency/'],
+   tags:['Thread','Runnable','synchronized','ExecutorService']},
+  {name:'JDBC',cat:'Backend',p:'P2',level:'Basic',diff:'Easy',must:true,
+   why:'Foundation before Hibernate. Interviewers ask how raw DB connection works behind the ORM.',
+   desc:'JDBC (Java Database Connectivity) teaches you the raw mechanics of connecting Java to a database. It is a stepping stone to Hibernate and helps you understand what JPA does for you.',
+   watch:['Telusko — JDBC Tutorial|https://youtube.com/telusko','Durga Sir — JDBC Full|https://youtube.com'],
+   read:['JavaTpoint JDBC|https://javatpoint.com/java-jdbc','Baeldung JDBC Introduction|https://baeldung.com/java-jdbc'],
+   practice:['Build: CRUD with JDBC + MySQL locally'],
+   tags:['Connection','PreparedStatement','ResultSet','CRUD']},
+  {name:'SQL',cat:'Database',p:'P1',level:'Intermediate',diff:'Medium',must:true,
+   why:'Every project uses a database. Every company tests SQL. JOINs and GROUP BY are guaranteed.',
+   desc:'SQL is tested by 100% of companies hiring for full stack roles. You need JOINs, GROUP BY, subqueries, and understanding of indexes for both coding rounds and technical discussions.',
+   watch:['Traversy Media — SQL Crash Course|https://youtube.com/traversymedia','Kudvenkat — SQL Server|https://youtube.com'],
+   read:['SQLBolt — Interactive SQL lessons|https://sqlbolt.com','Mode Analytics SQL Tutorial|https://mode.com/sql-tutorial'],
+   practice:['LeetCode Database section|https://leetcode.com/problemset/database/'],
+   tags:['JOINs','GROUP BY','Subqueries','Indexes','Transactions']},
+  {name:'Hibernate / JPA',cat:'Backend',p:'P1',level:'Intermediate',diff:'Medium',must:true,
+   why:'ORM standard in Spring Boot. Eliminates raw SQL. JPA relationships are a key interview topic.',
+   desc:'Hibernate/JPA maps Java objects to database tables. Spring Boot uses JPA out of the box via Spring Data. Understanding entity relationships (OneToMany, ManyToMany) is critical for project design.',
+   watch:['Amigoscode — Hibernate & JPA|https://youtube.com/amigoscode','In28Minutes — JPA Full|https://youtube.com'],
+   read:['Thorben Janssen — Java Persistence|https://thorben-janssen.com','Baeldung Hibernate Guide|https://baeldung.com/hibernate-5-spring'],
+   practice:['Build entity relationships in your project|#'],
+   tags:['@Entity','@OneToMany','@ManyToMany','JPQL','Lazy Loading']},
+  {name:'Spring Boot',cat:'Backend',p:'P1',level:'Intermediate',diff:'Medium',must:true,
+   why:'Industry standard Java backend framework. Most asked topic in Java FSD technical rounds.',
+   desc:'Spring Boot simplifies Java backend development. It handles configuration, dependency injection, and server setup. Every Java FSD role expects Spring Boot knowledge.',
+   watch:['Amigoscode — Spring Boot Full Course|https://youtube.com/amigoscode','In28Minutes — Spring Boot Tutorial|https://youtube.com'],
+   read:['Spring.io Getting Started|https://spring.io/guides','Baeldung Spring Boot|https://baeldung.com/spring-boot'],
+   practice:['Spring Initializr — create projects|https://start.spring.io'],
+   tags:['@RestController','@Service','@Autowired','DI','application.yml']},
+  {name:'REST APIs',cat:'Backend',p:'P1',level:'Intermediate',diff:'Easy',must:true,
+   why:'Core of full stack communication. Every project needs REST. Postman testing is expected.',
+   desc:'REST APIs define how your frontend and backend communicate. Building, testing, and documenting REST endpoints with Spring Boot is a fundamental expectation for every Java FSD role.',
+   watch:['Traversy Media — REST API Design|https://youtube.com/traversymedia','Amigoscode — Spring Boot REST|https://youtube.com/amigoscode'],
+   read:['REST API Tutorial|https://restfulapi.net','Baeldung REST with Spring|https://baeldung.com/rest-with-spring-series'],
+   practice:['Postman learning center|https://learning.postman.com'],
+   tags:['GET/POST/PUT/DELETE','Status Codes','DTOs','Pagination','Swagger']},
+  {name:'JWT Authentication',cat:'Backend',p:'P1',level:'Intermediate',diff:'Medium',must:true,
+   why:'Industry-standard auth. Every full stack project with login uses JWT. Interviewers ask the full flow.',
+   desc:'JWT (JSON Web Tokens) with Spring Security is the standard way to secure REST APIs. Understanding the token generation, validation, and refresh flow is expected in every Java FSD role.',
+   watch:['Amigoscode — Spring Security + JWT|https://youtube.com/amigoscode','Dan Vega — Spring Security 3|https://youtube.com'],
+   read:['jwt.io Introduction|https://jwt.io/introduction','Baeldung Spring Security JWT|https://baeldung.com/spring-security-oauth-jwt'],
+   practice:['Implement login + JWT in your project|#'],
+   tags:['JWT Flow','Spring Security','BCrypt','Role-based Access']},
+  {name:'HTML / CSS',cat:'Frontend',p:'P2',level:'Basic',diff:'Easy',must:true,
+   why:'Base of all frontend. Must know to build any React UI that looks professional.',
+   desc:'HTML structure and CSS styling are the foundation of every web UI. While React abstracts some of this, you need to understand the box model, flexbox, and responsive design.',
+   watch:['Traversy Media — HTML Crash Course|https://youtube.com/traversymedia','Kevin Powell — CSS|https://youtube.com/kevinpowell'],
+   read:['MDN Web Docs — HTML|https://developer.mozilla.org/en-US/docs/Web/HTML','CSS Tricks — Flexbox Guide|https://css-tricks.com/snippets/css/a-guide-to-flexbox/'],
+   practice:['Frontend Mentor — challenges|https://frontendmentor.io'],
+   tags:['Semantic HTML','Flexbox','Grid','Responsive','CSS Variables']},
+  {name:'JavaScript',cat:'Frontend',p:'P1',level:'Intermediate',diff:'Medium',must:true,
+   why:'Language of React and the browser. async/await, closures, and the event loop are interview topics.',
+   desc:'JavaScript is required to build React applications and understand how the browser works. Closures, promises, async/await, and ES6 features are commonly asked in React-heavy roles.',
+   watch:['Akshay Saini — Namaste JS|https://youtube.com/akshaymakes','Traversy Media — JS Crash Course|https://youtube.com/traversymedia'],
+   read:['javascript.info — The Modern JS Tutorial|https://javascript.info','MDN — JS Guide|https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide'],
+   practice:['Codewars — JavaScript katas|https://codewars.com'],
+   tags:['async/await','Closures','Event Loop','ES6','DOM']},
+  {name:'React.js',cat:'Frontend',p:'P1',level:'Intermediate',diff:'Medium',must:true,
+   why:'Most popular frontend library. Expected in every full stack Java FSD role.',
+   desc:'React is the standard for building frontend UIs that consume REST APIs. Hooks, routing, and state management are the key concepts for a full stack role — you do not need Redux for campus placements.',
+   watch:['Codevolution — React Tutorial|https://youtube.com/codevolution','Scrimba — React Course (free)|https://scrimba.com/learn/learnreact'],
+   read:['React.dev — Official Docs|https://react.dev','Fireship — React in 100 Seconds|https://fireship.io'],
+   practice:['Frontend Mentor — React challenges|https://frontendmentor.io'],
+   tags:['useState','useEffect','React Router','Axios','Context API']},
+  {name:'Git & GitHub',cat:'Tools',p:'P1',level:'Intermediate',diff:'Easy',must:true,
+   why:'Portfolio visibility + team collaboration. GitHub activity is checked before interviews.',
+   desc:'Git is non-negotiable for any development role. Your GitHub profile is your live portfolio — interviewers check it. Daily commits, good READMEs, and clean commit history signal professionalism.',
+   watch:['Traversy Media — Git Crash Course|https://youtube.com/traversymedia','Colt Steele — Git and GitHub|https://youtube.com'],
+   read:['Pro Git — Free Book|https://git-scm.com/book/en/v2','GitHub Skills|https://skills.github.com'],
+   practice:['GitHub — Create and push a repo daily|https://github.com'],
+   tags:['init/add/commit','branching','pull requests','.gitignore','README']},
+  {name:'Debugging',cat:'Tools',p:'P2',level:'Intermediate',diff:'Medium',must:true,
+   why:'Core developer skill. Live coding rounds may require debugging unfamiliar code.',
+   desc:'Debugging in IntelliJ IDEA (breakpoints, variable inspection, step-through) and browser DevTools for React are expected skills that distinguish junior developers from candidates who can actually ship.',
+   watch:['IntelliJ IDEA — Debugging Tips|https://youtube.com','Chrome DevTools — JS Debugging|https://youtube.com'],
+   read:['JetBrains — IntelliJ Debugger Guide|https://jetbrains.com/help/idea/debugging-code.html','MDN — DevTools|https://developer.mozilla.org'],
+   practice:['Debug your own projects intentionally|#'],
+   tags:['Breakpoints','Step Through','Variable Watch','Chrome DevTools']},
+  {name:'Deployment',cat:'Tools',p:'P2',level:'Basic',diff:'Easy',must:false,
+   why:'Live projects impress interviewers. Shows you can ship, not just code.',
+   desc:'Deploying your Spring Boot backend to Railway/Render and your React frontend to Vercel is required to have live projects. Free-tier deployments are completely sufficient for campus placements.',
+   watch:['Amigoscode — Deploy Spring Boot|https://youtube.com','Traversy Media — Deploy React|https://youtube.com/traversymedia'],
+   read:['Railway Docs|https://docs.railway.app','Render Docs|https://render.com/docs'],
+   practice:['Deploy your next project on Railway|https://railway.app'],
+   tags:['Railway','Render','Vercel','Environment Variables','Dockerfile basics']},
+  {name:'Testing (JUnit)',cat:'Backend',p:'P3',level:'Basic',diff:'Easy',must:false,
+   why:'Shows professionalism. Asked in mid-level product companies.',
+   desc:'Basic JUnit 5 unit tests and Mockito mocking show that you write production-quality code. Not essential for service companies but differentiates you in product company interviews.',
+   watch:['Amigoscode — Testing Spring Boot|https://youtube.com/amigoscode','Marco Behler — JUnit 5|https://youtube.com'],
+   read:['JUnit 5 User Guide|https://junit.org/junit5/docs/current/user-guide/','Baeldung Testing|https://baeldung.com/java-unit-testing-best-practices'],
+   practice:['Write unit tests for your Spring Boot project|#'],
+   tags:['@Test','@Mock','Mockito','@SpringBootTest','Assertions']},
+  {name:'Project Structuring',cat:'Tools',p:'P2',level:'Basic',diff:'Easy',must:false,
+   why:'Clean layered architecture is noticed in project discussions. Signals production awareness.',
+   desc:'A well-structured Spring Boot project (Controller → Service → Repository → Model) and proper React folder structure signal that you understand real-world codebases, not just tutorial projects.',
+   watch:['Amigoscode — Project Structure|https://youtube.com','In28Minutes — Layered Arch|https://youtube.com'],
+   read:['Reflectoring.io — Structure Guide|https://reflectoring.io','Baeldung — Spring Boot Project Layout|https://baeldung.com'],
+   practice:['Refactor an existing project to use clean layers|#'],
+   tags:['Controller','Service','Repository','DTO','Config']},
+  {name:'API Integration',cat:'Frontend',p:'P2',level:'Intermediate',diff:'Easy',must:true,
+   why:'Connecting React frontend to Spring Boot backend via Axios is the core full stack skill.',
+   desc:'API integration (Axios calls, handling loading/error states, JWT header injection) is what makes a project "full stack". This is the most important practical skill for frontend-backend communication.',
+   watch:['Codevolution — Axios Tutorial|https://youtube.com/codevolution','Traversy Media — Fetch & Axios|https://youtube.com/traversymedia'],
+   read:['Axios Docs|https://axios-http.com/docs/intro','React.dev — Fetching Data|https://react.dev/learn/synchronizing-with-effects'],
+   practice:['Connect your React app to your Spring Boot API|#'],
+   tags:['Axios','useEffect','Loading States','Error Handling','JWT Headers']},
+  {name:'Database Design',cat:'Database',p:'P1',level:'Intermediate',diff:'Medium',must:true,
+   why:'Every project needs a proper schema. Interviewers ask you to explain your DB design decisions.',
+   desc:'Database design (ER diagrams, normalization, relationships, indexing) is asked in every project discussion. A poorly designed schema signals that you just follow tutorials rather than think like a developer.',
+   watch:['Lucid Chart — DB Design|https://youtube.com/lucidchart','Decomplexify — SQL Normalization|https://youtube.com'],
+   read:['Vertabelo — DB Design Guide|https://vertabelo.com/blog/','SQLBolt — Advanced SQL|https://sqlbolt.com'],
+   practice:['Design the schema for your flagship project|#'],
+   tags:['ERD','Normalization','Foreign Keys','Indexes','Relationships']},
+  {name:'Basic DSA',cat:'CS',p:'P2',level:'Intermediate',diff:'Medium',must:true,
+   why:'Coding rounds test easy-medium DSA. Arrays, HashMaps, Stacks, Queues, and Trees are required.',
+   desc:'Java FSD coding rounds test easy-to-medium DSA — not hard DP. Focus on Arrays, Strings, HashMaps, Stacks, Queues, Linked Lists, and basic Trees. 80–100 problems is the target.',
+   watch:['NeetCode — DSA for Beginners|https://neetcode.io','Kunal Kushwaha — DSA Full Course|https://youtube.com'],
+   read:['NeetCode.io Roadmap|https://neetcode.io/roadmap','GFG — DSA Self-Paced|https://geeksforgeeks.org/dsa-self-paced-course'],
+   practice:['LeetCode — Easy then Medium|https://leetcode.com/studyplan/top-interview-150/'],
+   tags:['Arrays','HashMaps','Stacks','Linked Lists','Trees','Sorting']},
+  {name:'CS Fundamentals',cat:'CS',p:'P2',level:'Basic',diff:'Medium',must:true,
+   why:'Theory rounds at all companies test DBMS, OS, and CN. Missed theory = missed selection.',
+   desc:'DBMS, Operating Systems, and Computer Networks are tested in theory rounds. Service companies ask DBMS and OS heavily. Product companies add CN and OOP design questions.',
+   watch:['NPTEL — DBMS by Partha Pratim Das|https://nptel.ac.in','GATE Smashers — OS playlist|https://youtube.com'],
+   read:['GFG — DBMS Interview Questions|https://geeksforgeeks.org/dbms-interview-questions','Galvin OS Textbook excerpts|https://os-book.com'],
+   practice:['Revise using Anki flashcards for theory|https://ankiweb.net'],
+   tags:['ACID','Normalization','Deadlock','HTTP','TCP/IP']},
+  {name:'Resume Projects',cat:'Career',p:'P1',level:'Intermediate',diff:'Medium',must:true,
+   why:'Projects are 60% of campus interviews. A live deployed project beats 50 LeetCode solutions.',
+   desc:'Your GitHub portfolio — specifically 3–4 deployed, well-documented projects — is the strongest signal in a Java FSD interview. Projects show you can build real things, not just answer theory questions.',
+   watch:['Traversy Media — Portfolio Projects|https://youtube.com/traversymedia','FreeCodeCamp — Build Full Stack|https://youtube.com/freecodecamp'],
+   read:['GitHub Docs — Writing Good READMEs|https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes','Roadmap.sh — Project Ideas|https://roadmap.sh/projects'],
+   practice:['Build and deploy one project this month|#'],
+   tags:['Deployed URL','README','Screenshots','Architecture Diagram','Demo']},
+];
+
+// ── LEARN MODAL ───────────────────────────────────────────────
+function openModal(skillName){
+  const s=SKILLS.find(x=>x.name===skillName);
+  if(!s)return;
+  document.getElementById('modal-title').textContent=s.name;
+  document.getElementById('modal-badge').innerHTML=`<span class="badge bo">${s.cat}</span> <span class="badge ${s.p==='P1'?'bo':s.p==='P2'?'ba':'bgr'}">${s.p} ${s.p==='P1'?'Critical':'Important'}</span>`;
+  document.getElementById('modal-desc').textContent=s.desc;
+  // Watch
+  document.getElementById('panel-watch').innerHTML=s.watch.map(w=>{
+    const[title,url]=w.split('|');
+    return `<a class="res-item" href="${url||'#'}" target="_blank"><div class="ri-icon" style="background:rgba(239,68,68,.12)">▶</div><div><div class="ri-title">${title}</div><div class="ri-sub">Video / Course</div></div></a>`;
+  }).join('');
+  // Read
+  document.getElementById('panel-read').innerHTML=s.read.map(r=>{
+    const[title,url]=r.split('|');
+    return `<a class="res-item" href="${url||'#'}" target="_blank"><div class="ri-icon" style="background:rgba(59,130,246,.12)">📖</div><div><div class="ri-title">${title}</div><div class="ri-sub">Documentation / Tutorial</div></div></a>`;
+  }).join('');
+  // Practice
+  document.getElementById('panel-practice').innerHTML=s.practice.map(r=>{
+    const[title,url]=r.split('|');
+    return `<a class="res-item" href="${url||'#'}" target="_blank"><div class="ri-icon" style="background:rgba(34,197,94,.12)">⚡</div><div><div class="ri-title">${title}</div><div class="ri-sub">Practice Platform</div></div></a>`;
+  }).join('');
+  // Tags
+  document.getElementById('modal-meta').innerHTML=`
+    <div class="meta-item"><div class="meta-lbl">Level</div><div class="meta-val">${s.level}</div></div>
+    <div class="meta-item"><div class="meta-lbl">Difficulty</div><div class="meta-val">${s.diff}</div></div>
+    <div class="meta-item"><div class="meta-lbl">Mandatory</div><div class="meta-val">${s.must?'Yes — must-have':'Optional'}</div></div>
+    <div class="meta-item"><div class="meta-lbl">Category</div><div class="meta-val">${s.cat}</div></div>
+  `;
+  switchTab('watch',document.querySelector('.ltab'));
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(e){if(e.target===document.getElementById('modal-overlay'))closeModalForce();}
+function closeModalForce(){document.getElementById('modal-overlay').classList.remove('open');}
+function switchTab(tab,btn){
+  document.querySelectorAll('.learn-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ltab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+  if(btn)btn.classList.add('active');
+}
+
+// ── SKILL TABLE ───────────────────────────────────────────────
+const tbody=document.getElementById('skill-tbody');
+SKILLS.forEach(s=>{
+  const tr=document.createElement('tr');
+  tr.style.cursor='pointer';
+  tr.onclick=()=>openModal(s.name);
+  const pb=s.p==='P1'?'bo':s.p==='P2'?'ba':'bgr';
+  const db=s.diff==='Hard'?'br':s.diff==='Medium'?'ba':'bg';
+  const catb=s.cat==='Backend'?'bt':s.cat==='Frontend'?'bg':s.cat==='Database'?'bb':s.cat==='Tools'?'ba':'bp';
+  tr.innerHTML=`<td><div class="sk-name">${s.name}</div><div class="sk-why">${s.why}</div></td><td><span class="badge ${catb}">${s.cat}</span></td><td><span class="badge ${pb}">${s.p}${s.p==='P1'?' Critical':' Important'}</span></td><td><span class="badge ${db}">${s.level}</span></td><td>${s.must?'<span class="badge bo">Must-have</span>':'<span class="badge bgr">Optional</span>'}</td>`;
+  tbody.appendChild(tr);
+});
+
+// ── DAILY ROADMAP DATA ────────────────────────────────────────
+const DB=(c,t,skill)=>`<button class="dblk ${c}" onclick="openModal('${skill||'Core Java'}')" title="Click for resources">${t}</button>`;
+const dailyPhases=[
+  {id:'ph1',num:'Phase 1',title:'Core Java Foundation',months:'May 10 – Jun 30 (Weeks 1–8)',badge:'bo',
+   weeks:[
+    {title:'Week 1 — Java Setup + Syntax + Variables',days:[
+      {lbl:'Mon',note:'Day 1',blks:[DB('db-java','Theory: JDK17 + IntelliJ setup','Core Java'),DB('db-java','Code: Hello World → 5 programs','Core Java'),DB('db-dsa','DSA: 1 easy array','Basic DSA'),DB('db-rev','Git: create GitHub account','Git & GitHub')]},
+      {lbl:'Tue',note:'Day 2',blks:[DB('db-java','Theory: Variables, data types, operators','Core Java'),DB('db-java','Code: calculator + type conversion','Core Java'),DB('db-dsa','DSA: 1 string problem','Basic DSA')]},
+      {lbl:'Wed',note:'Day 3',blks:[DB('db-java','Theory: Control flow (if/else, switch)','Core Java'),DB('db-java','Code: 5 control flow programs','Core Java'),DB('db-dsa','DSA: LeetCode #1 Two Sum','Basic DSA')]},
+      {lbl:'Thu',note:'Day 4',blks:[DB('db-java','Theory: Loops (for/while/do-while)','Core Java'),DB('db-java','Code: pattern programs x5','Core Java'),DB('db-dsa','DSA: 2 easy problems','Basic DSA')]},
+      {lbl:'Fri',note:'Day 5',blks:[DB('db-java','Theory: Arrays 1D + 2D','Core Java'),DB('db-java','Code: array CRUD operations','Core Java'),DB('db-dsa','DSA: 2 array problems','Basic DSA')]},
+      {lbl:'Sat',note:'Day 6',blks:[DB('db-java','Theory: String class + methods','Core Java'),DB('db-java','Code: 5 string manipulation programs','Core Java'),DB('db-dsa','DSA: 3 easy problems','Basic DSA'),DB('db-rev','Push all code to GitHub','Git & GitHub')]},
+      {lbl:'Sun',note:'Review',blks:[DB('db-rev','Revise week 1 without reference','Core Java'),DB('db-rev','Weekly checkpoint self-review','Core Java'),DB('db-rev','Plan next week','Core Java')]},
+    ]},
+    {title:'Weeks 2–3 — OOP: Classes, Inheritance, Polymorphism',days:[
+      {lbl:'Mon–Fri',note:'W2',blks:[DB('db-java','Classes, objects, constructors, this','OOP'),DB('db-java','Inheritance: extends, super keyword','OOP'),DB('db-dsa','DSA: 2 problems/day','Basic DSA')]},
+      {lbl:'Mon–Fri',note:'W3',blks:[DB('db-java','Polymorphism + Abstract class + Interface','OOP'),DB('db-java','Encapsulation: getters/setters, access mods','OOP'),DB('db-dsa','DSA: 2 problems/day (HashMap focus)','Basic DSA')]},
+      {lbl:'Weekend',note:'',blks:[DB('db-java','Mini-project: Shape hierarchy (OOP demo)','OOP'),DB('db-rev','GitHub push + README','Git & GitHub')]},
+    ]},
+    {title:'Weeks 4–5 — Collections + Exception Handling + SOLID',days:[
+      {lbl:'Mon–Wed',note:'W4',blks:[DB('db-java','Collections: ArrayList, HashMap, Set, Queue','Collections Framework'),DB('db-java','Code: solve 5 problems using Collections','Collections Framework'),DB('db-dsa','DSA: HashMap problems','Basic DSA')]},
+      {lbl:'Thu–Fri',note:'W4',blks:[DB('db-java','Exception handling: try-catch, custom exceptions','Exception Handling'),DB('db-java','Build: Student grade manager with OOP + Collections','Collections Framework'),DB('db-dsa','DSA: 2 problems','Basic DSA')]},
+      {lbl:'Mon–Fri',note:'W5',blks:[DB('db-java','SOLID principles: one Java example per principle','OOP'),DB('db-java','Design patterns: Singleton + Factory','OOP'),DB('db-dsa','DSA: 2 problems/day','Basic DSA')]},
+      {lbl:'Weekend',note:'',blks:[DB('db-rev','Checkpoint: Can explain all 4 OOP pillars with code?','OOP'),DB('db-rev','GitHub: library system mini-project','Git & GitHub')]},
+    ]},
+    {title:'Weeks 6–8 — SQL + JDBC + Multithreading intro',days:[
+      {lbl:'Mon–Wed',note:'W6',blks:[DB('db-sql','SQL: SELECT, WHERE, ORDER BY, GROUP BY','SQL'),DB('db-sql','MySQL installed + create first table','SQL'),DB('db-dsa','DSA: 2 problems + LeetCode SQL x2','Basic DSA')]},
+      {lbl:'Thu–Fri',note:'W6',blks:[DB('db-sql','SQL: All JOINs (INNER/LEFT/RIGHT/FULL)','SQL'),DB('db-java','JDBC: Connection, Statement, ResultSet','JDBC'),DB('db-dsa','DSA: 2 problems','Basic DSA')]},
+      {lbl:'Mon–Fri',note:'W7-8',blks:[DB('db-java','JDBC: CRUD operations with MySQL','JDBC'),DB('db-java','Multithreading basics: Thread, Runnable','Multithreading Basics'),DB('db-dsa','DSA: 2–3 problems/day','Basic DSA'),DB('db-cs','CS Theory: start DBMS (1hr/day)','CS Fundamentals')]},
+      {lbl:'Weekend',note:'',blks:[DB('db-java','Build: JDBC Student records CRUD app','JDBC'),DB('db-rev','Checkpoint: 30+ LeetCode problems done?','Basic DSA')]},
+    ]},
+  ]},
+  {id:'ph2',num:'Phase 2',title:'Backend Core: Spring Boot + Hibernate',months:'Jul 1 – Aug 20 (Weeks 9–16)',badge:'bt',
+   weeks:[
+    {title:'Weeks 9–10 — HTML/CSS + JavaScript Core',days:[
+      {lbl:'Mon–Wed',note:'W9',blks:[DB('db-react','HTML: semantic structure, forms, tables','HTML / CSS'),DB('db-react','CSS: box model, flexbox, responsive basics','HTML / CSS'),DB('db-dsa','DSA: 2 problems/day','Basic DSA')]},
+      {lbl:'Thu–Fri',note:'W9',blks:[DB('db-react','JS: variables, functions, arrays, objects','JavaScript'),DB('db-react','JS: DOM manipulation, events','JavaScript'),DB('db-dsa','DSA: 2 problems','Basic DSA')]},
+      {lbl:'Mon–Fri',note:'W10',blks:[DB('db-react','JS: Promises, async/await, fetch API','JavaScript'),DB('db-react','JS: ES6 — arrow fns, destructuring, spread','JavaScript'),DB('db-dsa','DSA: 2 problems/day','Basic DSA'),DB('db-cs','CS Theory: DBMS normalization (1hr)','CS Fundamentals')]},
+      {lbl:'Weekend',note:'',blks:[DB('db-react','Build: Interactive Todo app — vanilla JS','JavaScript'),DB('db-rev','GitHub push','Git & GitHub')]},
+    ]},
+    {title:'Weeks 11–12 — Spring Boot Core',days:[
+      {lbl:'Mon–Wed',note:'W11',blks:[DB('db-spring','Spring Boot: project setup via Spring Initializr','Spring Boot'),DB('db-spring','@RestController, @RequestMapping, @Service','Spring Boot'),DB('db-dsa','DSA: 2 problems/day','Basic DSA')]},
+      {lbl:'Thu–Fri',note:'W11',blks:[DB('db-spring','DI: @Autowired, @Component, @Repository','Spring Boot'),DB('db-spring','application.properties: DB config','Spring Boot'),DB('db-cs','CS Theory: OS — processes, threads (1hr)','CS Fundamentals')]},
+      {lbl:'Mon–Fri',note:'W12',blks:[DB('db-spring','Build: Hello World REST API → User CRUD API','REST APIs'),DB('db-sql','SQL: subqueries, views, GROUP BY advanced','SQL'),DB('db-dsa','DSA: 2–3 problems/day','Basic DSA')]},
+      {lbl:'Weekend',note:'',blks:[DB('db-spring','Postman: test all endpoints thoroughly','REST APIs'),DB('db-rev','Checkpoint: Can build REST CRUD from scratch?','Spring Boot')]},
+    ]},
+    {title:'Weeks 13–14 — Hibernate/JPA + DB Design',days:[
+      {lbl:'Mon–Wed',note:'W13',blks:[DB('db-spring','JPA: @Entity, @Id, @Column, @Table','Hibernate / JPA'),DB('db-spring','Relationships: @OneToMany, @ManyToOne','Hibernate / JPA'),DB('db-dsa','DSA: 2 problems/day','Basic DSA')]},
+      {lbl:'Thu–Fri',note:'W13',blks:[DB('db-spring','Spring Data JPA: JpaRepository, custom queries','Hibernate / JPA'),DB('db-sql','DB Design: ER diagram for a real project','Database Design'),DB('db-cs','CS Theory: OS deadlock + memory (1hr)','CS Fundamentals')]},
+      {lbl:'Mon–Fri',note:'W14',blks:[DB('db-spring','GlobalExceptionHandler + DTOs pattern','Spring Boot'),DB('db-spring','Pagination + Sorting via Pageable','REST APIs'),DB('db-dsa','DSA: 2–3 problems/day (Stacks/Queues)','Basic DSA')]},
+      {lbl:'Weekend',note:'',blks:[DB('db-spring','Build: Bookstore API — entities + relationships','Hibernate / JPA'),DB('db-rev','GitHub: push with clean commit messages','Git & GitHub')]},
+    ]},
+    {title:'Weeks 15–16 — JWT Authentication',days:[
+      {lbl:'Mon–Wed',note:'W15',blks:[DB('db-spring','Spring Security setup + configuration','JWT Authentication'),DB('db-spring','JWT: token generation + validation','JWT Authentication'),DB('db-dsa','DSA: 2 problems/day','Basic DSA')]},
+      {lbl:'Thu–Fri',note:'W15',blks:[DB('db-spring','Login/Register endpoints with BCrypt','JWT Authentication'),DB('db-spring','Role-based access: ADMIN vs USER','JWT Authentication'),DB('db-cs','CS Theory: CN — HTTP, TCP/IP (1hr)','CS Fundamentals')]},
+      {lbl:'Mon–Fri',note:'W16',blks:[DB('db-spring','PROJECT 1 START: Auth System','Resume Projects'),DB('db-react','React fundamentals: components, useState, useEffect','React.js'),DB('db-dsa','DSA: 2–3 problems/day','Basic DSA')]},
+      {lbl:'Weekend',note:'',blks:[DB('db-proj','Auth System: test all auth endpoints in Postman','JWT Authentication'),DB('db-rev','Checkpoint: 50+ LeetCode problems done?','Basic DSA')]},
+    ]},
+  ]},
+  {id:'ph3',num:'Phase 3',title:'React + Full Stack Integration + Projects',months:'Aug 21 – Oct 20 (Weeks 17–24)',badge:'bg',
+   weeks:[
+    {title:'Weeks 17–18 — React Core + API Integration',days:[
+      {lbl:'Mon–Wed',note:'W17',blks:[DB('db-react','React: props, state, lifecycle via hooks','React.js'),DB('db-react','React Router: navigation + protected routes','React.js'),DB('db-dsa','DSA: 2 medium problems/day','Basic DSA')]},
+      {lbl:'Thu–Fri',note:'W17',blks:[DB('db-react','Axios: API calls + error handling + loading','API Integration'),DB('db-react','JWT: inject token in Axios headers','JWT Authentication'),DB('db-cs','CS Theory: CN — REST, cookies, CORS (1hr)','CS Fundamentals')]},
+      {lbl:'Mon–Fri',note:'W18',blks:[DB('db-proj','PROJECT 1: React frontend — login + register forms','Resume Projects'),DB('db-proj','P1: Connect React to Spring Boot Auth API','API Integration'),DB('db-dsa','DSA: 2 problems/day','Basic DSA')]},
+      {lbl:'Weekend',note:'',blks:[DB('db-proj','PROJECT 1: Test end-to-end flow + deploy on Render','Deployment'),DB('db-rev','GitHub: README + screenshots for Project 1','Git & GitHub')]},
+    ]},
+    {title:'Weeks 19–20 — Project 2: CRUD Dashboard',days:[
+      {lbl:'Mon–Wed',note:'W19',blks:[DB('db-proj','P2 design: DB schema + API endpoints plan','Database Design'),DB('db-spring','P2 backend: all REST endpoints with pagination','REST APIs'),DB('db-dsa','DSA: 2 problems/day','Basic DSA')]},
+      {lbl:'Thu–Fri',note:'W19',blks:[DB('db-proj','P2 backend: test with Postman + fix bugs','Spring Boot'),DB('db-react','P2 frontend: CRUD UI + search + filter','React.js'),DB('db-cs','CS Theory: OOP design patterns review (1hr)','CS Fundamentals')]},
+      {lbl:'Mon–Fri',note:'W20',blks:[DB('db-proj','P2: Integrate frontend + backend end-to-end','API Integration'),DB('db-proj','P2: Deploy on Railway + Vercel','Deployment'),DB('db-dsa','DSA: 2–3 medium problems/day','Basic DSA')]},
+      {lbl:'Weekend',note:'',blks:[DB('db-rev','Checkpoint: 2 deployed projects on GitHub?','Resume Projects'),DB('db-rev','README quality check for both projects','Git & GitHub')]},
+    ]},
+    {title:'Weeks 21–22 — Project 3: Scalable API',days:[
+      {lbl:'Mon–Fri',note:'W21',blks:[DB('db-spring','P3: E-Commerce/Blog API design','Spring Boot'),DB('db-spring','P3: Swagger/OpenAPI documentation setup','REST APIs'),DB('db-dsa','DSA: 2 problems/day + mock coding round','Basic DSA')]},
+      {lbl:'Mon–Fri',note:'W22',blks:[DB('db-spring','P3: Exception handling + validation (@Valid)','Spring Boot'),DB('db-proj','P3: Docker basics + deploy','Deployment'),DB('db-dsa','DSA: 2 problems/day','Basic DSA')]},
+      {lbl:'Weekend',note:'',blks:[DB('db-proj','P3: deploy + live Swagger UI accessible','Deployment'),DB('db-rev','GitHub: architecture README for P3','Git & GitHub')]},
+    ]},
+    {title:'Weeks 23–24 — Flagship Project (P4) Start',days:[
+      {lbl:'Mon',note:'W23',blks:[DB('db-proj','P4: Choose domain + DB schema + ERD design','Database Design'),DB('db-cs','CS Theory: DBMS full revision (1hr)','CS Fundamentals'),DB('db-dsa','DSA: 2 problems','Basic DSA')]},
+      {lbl:'Tue–Thu',note:'W23',blks:[DB('db-spring','P4: Spring Boot + JWT setup','JWT Authentication'),DB('db-spring','P4: Core entity APIs (50% backend)','REST APIs'),DB('db-dsa','DSA: 2 problems/day','Basic DSA')]},
+      {lbl:'Fri–Sun',note:'W23',blks:[DB('db-react','P4: React project setup + routing + auth pages','React.js'),DB('db-rev','Resume draft begins','Resume Projects'),DB('db-dsa','DSA: 3 problems','Basic DSA')]},
+      {lbl:'Mon–Sun',note:'W24',blks:[DB('db-proj','P4: Full backend complete + Swagger docs','Spring Boot'),DB('db-react','P4: React frontend — all pages + API integrated','API Integration'),DB('db-proj','P4: Deploy on Railway + Vercel','Deployment'),DB('db-dsa','DSA: 2 problems/day','Basic DSA')]},
+    ]},
+  ]},
+  {id:'ph4',num:'Phase 4',title:'Interview Polish + Placement Execution',months:'Oct 21 – Dec 31 (Weeks 25–32)',badge:'br',
+   weeks:[
+    {title:'Weeks 25–26 — Mock Interviews + Full Revision Begins',days:[
+      {lbl:'Mon–Wed',note:'W25',blks:[DB('db-rev','Revise: Java OOP top 20 questions','OOP'),DB('db-spring','Revise: Spring Boot top 15 questions','Spring Boot'),DB('db-dsa','DSA: 3 medium problems/day','Basic DSA')]},
+      {lbl:'Thu–Fri',note:'W25',blks:[DB('db-sql','Revise: SQL JOINs + ACID + indexing','SQL'),DB('db-rev','Aptitude: 1 full mock test','Core Java'),DB('db-dsa','DSA: 2 problems','Basic DSA')]},
+      {lbl:'Sat',note:'',blks:[DB('db-rev','MOCK INTERVIEW #1: record yourself (20 min)','Resume Projects')]},
+      {lbl:'Sun',note:'',blks:[DB('db-rev','Debrief: identify 3 weak areas','Core Java'),DB('db-rev','Weekly checkpoint','Core Java')]},
+      {lbl:'Mon–Sun',note:'W26',blks:[DB('db-cs','CS revision: OS + CN','CS Fundamentals'),DB('db-rev','MOCK #2: peer interview (45 min technical)','Resume Projects'),DB('db-dsa','DSA: 3 problems/day','Basic DSA'),DB('db-rev','Apply to 5 companies','Resume Projects')]},
+    ]},
+    {title:'Weeks 27–32 — Final Polish + Applications',days:[
+      {lbl:'Mon–Tue',note:'Daily',blks:[DB('db-rev','Revise 10 interview questions (rotate topics daily)','Core Java'),DB('db-dsa','DSA: 2–3 problems/day','Basic DSA'),DB('db-rev','Apply to 3+ companies','Resume Projects')]},
+      {lbl:'Wed',note:'Weekly',blks:[DB('db-rev','MOCK INTERVIEW (Pramp / peer)','Resume Projects'),DB('db-rev','Debrief: track improvement','Core Java')]},
+      {lbl:'Thu',note:'Weekly',blks:[DB('db-rev','Aptitude full test + analyse mistakes','Core Java'),DB('db-spring','Revise: Spring Boot or React concepts','Spring Boot')]},
+      {lbl:'Fri',note:'Weekly',blks:[DB('db-rev','Resume tailoring for target company','Resume Projects'),DB('db-proj','Project: fix any live bugs, keep deployed','Deployment')]},
+      {lbl:'Sat–Sun',note:'Weekly',blks:[DB('db-rev','STAR method behavioural questions practice','Core Java'),DB('db-rev','Company research: 2 target companies','Resume Projects'),DB('db-rev','Checklist: use readiness checklist','CS Fundamentals')]},
+    ]},
+  ]},
+];
+
+const dc=document.getElementById('daily-container');
+dailyPhases.forEach(ph=>{
+  const d=document.createElement('div');d.className='phase-block';
+  const weeksHtml=ph.weeks.map(w=>`
+    <div class="week-block">
+      <div class="week-hd" onclick="toggleWk(this)">
+        <span class="badge ${ph.badge}" style="font-size:9px">${ph.num}</span>
+        <span style="font-size:13px;font-weight:600;margin-left:4px">${w.title}</span>
+        <span class="week-toggle">›</span>
+      </div>
+      <div class="week-days">
+        ${w.days.map(day=>`
+          <div class="day-row">
+            <div class="day-lbl"><span class="dn">${day.lbl}</span><span style="font-size:9.5px;color:var(--t3)">${day.note}</span></div>
+            <div class="day-cnt"><div class="day-blks">${day.blks.join('')}</div></div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  d.innerHTML=`
+    <div class="phase-hd" onclick="togglePhase(this)">
+      <span class="badge ${ph.badge}">${ph.num}</span>
+      <span class="phase-hd-title">${ph.title}</span>
+      <span style="font-size:12px;font-family:var(--mono);color:var(--t3)">${ph.months}</span>
+      <span class="phase-toggle">›</span>
+    </div>
+    <div class="phase-body">${weeksHtml}</div>
+  `;
+  dc.appendChild(d);
+});
+function togglePhase(hd){const b=hd.nextElementSibling,t=hd.querySelector('.phase-toggle');b.classList.toggle('open');t.style.transform=b.classList.contains('open')?'rotate(90deg)':'';}
+function toggleWk(hd){const b=hd.nextElementSibling,t=hd.querySelector('.week-toggle');b.classList.toggle('open');t.style.transform=b.classList.contains('open')?'rotate(90deg)':'';}
+
+// ── MONTHLY ───────────────────────────────────────────────────
+const months=[
+  {m:'Month 1 (May 10–31)',t:'Core Java Foundation',b:'Build the unshakeable Java base. Every interview starts here.',
+   w:['W1: Java syntax, data types, control flow, arrays','W2: OOP — classes, objects, constructors, inheritance','W3: Polymorphism, abstract classes, interfaces','W4: SOLID principles, mini OOP project'],
+   c:'Can write clean Java OOP code without reference. 15+ LeetCode easy done.'},
+  {m:'Month 2 (Jun)',t:'OOP Mastery + Collections + SQL',b:'Deepen OOP, master Collections, start SQL. These 3 topics are tested in every technical round.',
+   w:['W5: Collections: ArrayList, HashMap, Set, Iterator','W6: Exception handling + design patterns','W7: SQL: SELECT, JOINs, GROUP BY, subqueries','W8: JDBC with MySQL + SQL practice'],
+   c:'Explain OOP + Collections with code. Write JOIN queries. JDBC CRUD works.'},
+  {m:'Month 3 (Jul)',t:'HTML/CSS + JavaScript + Spring Boot Start',b:'Build frontend foundation while starting the most important backend framework.',
+   w:['W9: HTML/CSS basics — 3 static pages built','W10: JavaScript core: async/await, DOM, ES6','W11: Spring Boot setup + @RestController + DI','W12: Spring Boot REST CRUD API with MySQL'],
+   c:'Build a Spring Boot REST API from scratch. Functional JS pages. 35+ LeetCode done.'},
+  {m:'Month 4 (Aug)',t:'Hibernate/JPA + JWT Authentication',b:'Add the ORM layer and security to your backend. Both are critical interview topics.',
+   w:['W13: JPA @Entity + relationships (@OneToMany)','W14: Spring Data JPA + custom queries + pagination','W15: Spring Security + JWT full auth flow','W16: React fundamentals start + PROJECT 1 begins'],
+   c:'Auth system backend complete. JPA entities with relationships working. 50+ LeetCode.'},
+  {m:'Month 5 (Sep)',t:'React + Full Stack Integration + Projects 1–2',b:'Connect frontend to backend. Build and deploy your first two projects.',
+   w:['W17: React hooks + React Router + Axios','W18: PROJECT 1 complete + deployed','W19: PROJECT 2: CRUD Dashboard build','W20: PROJECT 2 complete + deployed'],
+   c:'2 deployed projects live on GitHub. Full stack flow works end-to-end.'},
+  {m:'Month 6 (Oct)',t:'Project 3 + Flagship Project Start',b:'Scalable API and your resume-centrepiece project. Quality over speed this month.',
+   w:['W21: PROJECT 3: Scalable Spring Boot API + Swagger','W22: PROJECT 3 complete + deployed','W23: PROJECT 4 (Flagship): DB design + backend','W24: PROJECT 4: React frontend + integration'],
+   c:'3 deployed projects. Flagship 80% complete. Resume drafted. CS theory 50% revised.'},
+  {m:'Month 7 (Nov)',t:'Flagship Complete + CS Theory + Mock Interviews',b:'Finish project 4, revise all theory, and begin mock interview system.',
+   w:['W25: Flagship complete + deployed + README','W26: CS Theory: DBMS + OS full revision','W27: Mock interviews begin (2 per week)','W28: Full technical revision + aptitude tests'],
+   c:'All 4 projects live. CS theory revised. 3+ mock interviews done. Resume finalized.'},
+  {m:'Month 8 (Dec)',t:'Placement Execution',b:'Apply aggressively, mock interview every week, revise daily. This is the execution month.',
+   w:['W29: Full technical revision all topics','W30: Company-specific research + tailored applications','W31: Mock interviews + aptitude + apply daily','W32: Final polish + placements'],
+   c:'Placement-ready. Confident. 20+ applications sent. Every project explainable in 90 seconds.'},
+];
+const mc=document.getElementById('monthly-container');
+months.forEach(m=>{
+  const d=document.createElement('div');d.className='tli';
+  d.innerHTML=`<div class="tli-eye">${m.m}</div><div class="tli-title">${m.t}</div><div class="tli-body">${m.b}</div>
+  <div style="margin:8px 0 4px;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--t3)">Weekly milestones</div>
+  <div class="chips">${m.w.map(x=>`<span class="chip">${x}</span>`).join('')}</div>
+  <div class="tli-check">✓ Month end: ${m.c}</div>`;
+  mc.appendChild(d);
+});
+
+// ── CHECKPOINTS ───────────────────────────────────────────────
+const CKS=[
+  {wk:'Week 2',t:'OOP Foundation',items:['Can explain 4 OOP pillars with Java code examples','Written 10+ Java programs from scratch (no copy-paste)','IntelliJ IDEA set up and comfortable to use','GitHub account created, first code pushed']},
+  {wk:'Week 4',t:'OOP + Collections Complete',items:['Can write polymorphism example without reference','Know when to use HashMap vs ArrayList vs Set','Custom exception class written and tested','20+ LeetCode easy problems solved']},
+  {wk:'Week 6',t:'SQL Fundamentals',items:['Write INNER JOIN + LEFT JOIN without reference','Understand 1NF, 2NF, 3NF with examples','MySQL installed and running locally','LeetCode Database: 8+ problems solved']},
+  {wk:'Week 8',t:'JDBC + OOP Mini-Project',items:['JDBC: connect Java to MySQL, do CRUD without reference','SOLID principles: one Java example per principle','Mini-project (Library or Student system) on GitHub','30+ LeetCode easy problems solved']},
+  {wk:'Week 10',t:'HTML/CSS + JavaScript',items:['HTML: built a 3-page static website','CSS: flexbox layout used in a project','JS: async/await and Promises understood','Vanilla JS Todo app built and pushed to GitHub']},
+  {wk:'Week 12',t:'Spring Boot REST API',items:['Spring Boot: create and run a project from scratch','@Entity with JPA and DB connection configured','CRUD REST API tested with Postman (all 4 methods)','Application.properties: DB configuration done']},
+  {wk:'Week 16',t:'JWT + Spring Security',items:['Spring Security + JWT: login/register flow working','BCrypt password hashing implemented','Role-based access (ADMIN/USER) configured','React: useState + useEffect used in a component']},
+  {wk:'Week 20',t:'Projects 1 & 2 Deployed',items:['Project 1 (Auth System) deployed on Render/Railway','Project 2 (CRUD Dashboard) with pagination deployed','Both projects have proper READMEs with screenshots','50+ LeetCode problems solved (mix easy + medium)']},
+  {wk:'Week 24',t:'Flagship Project + 3 Projects Live',items:['Flagship project 80%+ complete','3 live projects on GitHub with clean READMEs','Resume drafted and peer-reviewed','CS theory: DBMS + OS + CN at least started']},
+  {wk:'Week 28',t:'Interview Readiness — 70%',items:['All 4 projects deployed and explainable','CS theory: all 3 subjects revised once','Mock interview 1 completed — weak areas identified','Aptitude: solving 75%+ in mock tests']},
+  {wk:'Week 30',t:'Interview Readiness — 85%',items:['Top 20 Java OOP questions answered fluently','Spring Boot: DI, @Transactional, exception handling fluent','Project explanation: 90-second version polished','Applied to 10+ companies']},
+  {wk:'Week 32',t:'Placement Ready',items:['All 4 projects live, documented, explainable','Readiness checklist: 90%+ checked','Applied to 20+ companies','Mock interviewed with 3+ different people — strong feedback']},
+];
+const ckc=document.getElementById('ck-container');
+CKS.forEach(ck=>{
+  const completed=0;
+  const d=document.createElement('div');d.className='ck-card';
+  d.innerHTML=`
+    <div class="ck-hd">
+      <span class="ck-week">${ck.wk}</span>
+      <span class="ck-title">${ck.t}</span>
+      <span class="ck-status" style="color:var(--t3)" data-ck-status>0/${ck.items.length}</span>
+    </div>
+    <div class="ck-items">
+      ${ck.items.map(item=>`<div class="ck-item" onclick="toggleCkItem(this)"><div class="ck-box"></div><span>${item}</span></div>`).join('')}
+    </div>`;
+  ckc.appendChild(d);
+});
+function toggleCkItem(el){
+  el.classList.toggle('done');
+  const card=el.closest('.ck-card');
+  const total=card.querySelectorAll('.ck-item').length;
+  const done=card.querySelectorAll('.ck-item.done').length;
+  const status=card.querySelector('[data-ck-status]');
+  status.textContent=`${done}/${total}`;
+  status.style.color=done===total?'var(--green)':done>total/2?'var(--amber)':'var(--t3)';
+  updateChecklist();
+}
+
+// ── CS FUNDAMENTALS ───────────────────────────────────────────
+const CSF=[
+  {t:'DBMS',b:'bo',p:'P1 Critical',
+   why:'Every full stack project uses a database. Companies test relational thinking, not just query syntax.',
+   flow:[{w:'Week 6-7',t:'ER Diagrams + Schema',s:'ER model, normalization 1NF–3NF, functional dependencies'},{w:'Week 8',t:'SQL Deep Dive',s:'All JOINs, GROUP BY, views, stored procedures'},{w:'Week 26 (Rev)',t:'Transactions + Indexing',s:'ACID, B-tree indexes, query optimization'}],
+   topics:['ER diagrams and schema design','Normalization: 1NF, 2NF, 3NF, BCNF','ACID properties with examples','All JOIN types','Indexing — B-tree, hash, clustered','Transactions and rollback','Views and triggers','N+1 problem in Hibernate'],
+   res:['NPTEL DBMS (Partha Pratim Das)','Mode Analytics SQL','LeetCode Database section','SQLZoo']},
+  {t:'Operating Systems',b:'ba',p:'P2 Important',
+   why:'Multithreading in Java maps to OS concurrency. Deadlock questions appear in product company rounds.',
+   flow:[{w:'Week 11',t:'Process & Thread',s:'Lifecycle, scheduling: FCFS, SJF, Round Robin'},{w:'Week 12',t:'Synchronization',s:'Deadlock, mutex, semaphore, monitor'},{w:'Week 27 (Rev)',t:'Memory',s:'Paging, virtual memory, page replacement'}],
+   topics:['Process vs Thread','CPU scheduling algorithms','Deadlock — conditions, detection, prevention','Mutex and Semaphore','Memory management: paging, segmentation','Page replacement: LRU, FIFO, Optimal','IPC mechanisms','File system concepts'],
+   res:['Galvin OS Book Ch3–10','GFG Operating Systems','GATE Smashers YouTube OS playlist']},
+  {t:'Computer Networks',b:'bt',p:'P2 Important',
+   why:'REST APIs, HTTP, JWT, CORS all require CN fundamentals. Full stack devs must understand data travel.',
+   flow:[{w:'Week 13-14',t:'Protocols + Model',s:'OSI/TCP-IP, HTTP/HTTPS, DNS, IP addressing'},{w:'Week 15',t:'Application Layer',s:'REST principles, cookies/sessions, CORS, WebSockets'},{w:'Week 27 (Rev)',t:'Security',s:'TLS/SSL, JWT over HTTPS, CORS headers in Spring'}],
+   topics:['OSI and TCP/IP models','HTTP/HTTPS — request/response, status codes','TCP vs UDP','DNS resolution','Cookies vs Sessions vs JWT','REST principles — statelessness, idempotency','CORS and Spring Boot CORS config','TLS/SSL basics'],
+   res:['Kurose & Ross Ch1-5','GFG CN section','Hussein Nasser YouTube (HTTP/TCP deep dives)']},
+  {t:'OOP Concepts',b:'bo',p:'P1 Critical',
+   why:'Java is built on OOP. Spring Boot uses DI, interfaces, and patterns throughout. Highest-frequency topic.',
+   flow:[{w:'Week 2-3',t:'4 Pillars',s:'Encapsulation, Inheritance, Polymorphism, Abstraction'},{w:'Week 5',t:'SOLID + Patterns',s:'SOLID principles, Singleton, Factory, Observer, Builder'},{w:'Week 26 (Rev)',t:'Design Review',s:'Which pattern solves which problem? Give Java code examples'}],
+   topics:['4 OOP pillars with Java code examples','SOLID principles — one example per principle','Design patterns: Singleton, Factory, Observer, Builder, Strategy','Composition vs Inheritance','Java-specific: final, static, this, super','Interface default methods (Java 8+)'],
+   res:['Refactoring.guru','Head First Design Patterns','Derek Banas YouTube patterns']},
+  {t:'SQL Optimization',b:'bp',p:'P3 Good-to-have',
+   why:'Mid-level product companies test query performance. N+1 is a real production problem.',
+   flow:[{w:'Week 14',t:'Index Design',s:'When and how to add indexes, covering indexes'},{w:'Week 15',t:'N+1 Problem',s:'Hibernate fetch strategies: LAZY vs EAGER, @EntityGraph'},{w:'Week 28 (Rev)',t:'Query Plans',s:'EXPLAIN ANALYZE, slow query log, query rewriting'}],
+   topics:['EXPLAIN and EXPLAIN ANALYZE in MySQL','Creating indexes — B-tree, covering indexes','N+1 in Hibernate — fix with @EntityGraph or JOIN FETCH','Avoiding full table scans','Query rewriting: EXISTS vs IN','Connection pooling (HikariCP)'],
+   res:['Use-The-Index-Luke.com','Baeldung Hibernate performance','Percona blog MySQL optimization']},
+];
+const csc=document.getElementById('cs-container');
+CSF.forEach((cs,i)=>{
+  const d=document.createElement('div');d.className='cs-card';
+  d.innerHTML=`
+    <div class="cs-hd" onclick="toggleCS(this)">
+      <div style="display:flex;align-items:center;gap:8px"><span class="card-title">${cs.t}</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="badge ${cs.b}">${cs.p}</span><span style="color:var(--t3);font-size:18px;transition:transform .2s" class="cs-tog">›</span></div>
+    </div>
+    <div class="cs-body ${i===0?'open':''}">
+      <p style="color:var(--t2);font-size:13px;margin-bottom:14px">${cs.why}</p>
+      <div style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:8px">Preparation flow</div>
+      <div class="pf">${cs.flow.map(f=>`<div class="pf-step"><div class="pf-wk">${f.w}</div><div class="pf-topic">${f.t}</div><div class="pf-sub">${f.s}</div></div>`).join('')}</div>
+      <div style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin:14px 0 8px">Key interview topics</div>
+      <div class="chips">${cs.topics.map(t=>`<span class="chip">${t}</span>`).join('')}</div>
+      <div style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin:14px 0 8px">Resources</div>
+      <div class="res-row">${cs.res.map(r=>`<span class="rpill"><span class="rdot rdot-r"></span>${r}</span>`).join('')}</div>
+    </div>`;
+  csc.appendChild(d);
+});
+function toggleCS(hd){const b=hd.nextElementSibling,t=hd.querySelector('.cs-tog');b.classList.toggle('open');t.style.transform=b.classList.contains('open')?'rotate(90deg)':'';}
+
+// ── PROJECTS ─────────────────────────────────────────────────
+const PROJECTS=[
+  {title:'Project 1 — Authentication System',badge:'ba',badgeT:'Month 4–5 · 3 weeks',flagship:false,
+   stack:['Spring Boot + Spring Security','JWT access + refresh tokens','MySQL + Hibernate','React.js frontend','BCrypt password hashing'],
+   tl:[{w:'Week 1',t:'DB schema + Spring Boot + login/register API'},{w:'Week 2',t:'JWT flow + Spring Security + role-based access'},{w:'Week 3',t:'React frontend: forms + protected routes + deploy'}],
+   backend:['POST /api/auth/register — hash + save user','POST /api/auth/login — validate + return JWT','GET /api/users/me — protected, return current user','Role-based access: ADMIN vs USER'],
+   db:['users: id, email, password_hash, role, created_at','roles enum or separate table','Refresh tokens table (optional)'],
+   deploy:['Backend: Railway (free tier)','Frontend: Vercel','Environment vars: JWT secret + DB URL'],
+   res:'Built a full-stack JWT authentication system using Spring Boot and React.js. Implemented role-based access control with Spring Security, BCrypt hashing, and protected React routes. Deployed on Railway + Vercel.'},
+  {title:'Project 2 — Employee CRUD Dashboard',badge:'bg',badgeT:'Month 5 · 2 weeks',flagship:false,
+   stack:['Spring Boot REST API','MySQL + JPA/Hibernate','React.js + Axios','Bootstrap/Tailwind CSS','Pagination (backend + frontend)'],
+   tl:[{w:'Week 1',t:'DB schema + all REST endpoints + Postman tested'},{w:'Week 2',t:'React CRUD UI with search, filter, pagination + deploy'}],
+   backend:['GET /api/employees?page=0&size=10 — paginated','POST /api/employees — create','PUT /api/employees/{id} — update','DELETE /api/employees/{id} — delete','GET /api/employees/search?name=X'],
+   db:['employees: id, name, email, department, salary, joinDate','departments: id, name','FK: employees.department_id → departments.id'],
+   deploy:['Full stack on Railway','Railway MySQL plugin for DB'],
+   res:'Developed a full-stack employee management dashboard with paginated CRUD, search by name/department, and CSV export. Spring Boot REST API with Hibernate JPA + MySQL. React.js frontend with responsive UI.'},
+  {title:'Project 3 — Scalable Spring Boot API',badge:'bb',badgeT:'Month 6 · 2 weeks',flagship:false,
+   stack:['Spring Boot + Spring Data JPA','MySQL with optimized schema','Swagger/OpenAPI documentation','Docker basics','Global exception handling + validation'],
+   tl:[{w:'Week 1',t:'API design + DB schema + all endpoints + input validation'},{w:'Week 2',t:'Swagger docs + error handling + pagination + deploy'}],
+   backend:['REST API following REST principles fully','Pagination + sorting on all list endpoints','@Valid input validation + custom error responses','Swagger UI at /swagger-ui.html','GlobalExceptionHandler for all error types'],
+   db:['Normalized schema (3NF)','Indexed columns on searched fields','FK constraints enforced','3+ related entities with JPA relationships'],
+   deploy:['Dockerfile + basic docker-compose.yml','Deployed on Railway','Swagger UI live and accessible'],
+   res:'Built a production-grade Spring Boot REST API with full CRUD, pagination, input validation, and Swagger/OpenAPI documentation. Follows REST best practices with proper HTTP status codes, DTOs, and global exception handling.'},
+  {title:'Project 4 — Flagship Full Stack App',badge:'bo',badgeT:'Month 6–7 · 4 weeks · RESUME CENTREPIECE',flagship:true,
+   stack:['Spring Boot + Spring Security + JWT','MySQL + Hibernate (3–5 entities)','React.js + Context API','React Router + Axios','Swagger + JavaMail/SendGrid','Railway (backend) + Vercel (frontend)'],
+   tl:[{w:'Week 1',t:'DB ERD + Spring Boot setup + auth integration'},{w:'Week 2',t:'Core business logic REST APIs + Swagger docs'},{w:'Week 3',t:'React frontend — all pages + full API integration'},{w:'Week 4',t:'Testing + bug fixes + deployment + README + screenshots'}],
+   backend:['JWT-secured endpoints with role-based access','5+ entity types with proper JPA relationships','File upload via MultipartFile (if applicable)','Email notification (JavaMail/SendGrid API)','Full Swagger documentation','Pagination, sorting, search, validation throughout'],
+   db:['ERD with 3–5 tables — properly normalized','Junction tables for many-to-many','Indexed search fields','Seed data script for demo purposes'],
+   deploy:['Backend: Railway with env variables','Frontend: Vercel with .env for API URL','Custom README: description + setup + screenshots + live link + architecture diagram'],
+   res:'Built [Project Name] — a full-stack [domain] application. Features: JWT authentication with role-based access, [key feature 1], [key feature 2], and [key feature 3]. Spring Boot backend (REST API + Hibernate + MySQL), React.js frontend. Deployed: Railway + Vercel. [GitHub link]'},
+];
+const prc=document.getElementById('projects-container');
+PROJECTS.forEach(p=>{
+  const d=document.createElement('div');d.className='proj-card';
+  if(p.flagship)d.style.borderColor='rgba(249,115,22,.4)';
+  d.innerHTML=`
+    <div class="proj-hd"><h3>${p.title}</h3><span class="badge ${p.badge}">${p.badgeT}</span></div>
+    <div class="proj-body">
+      <div style="margin-bottom:14px">
+        <div style="font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:7px">Development timeline</div>
+        <div class="ts-strip">${p.tl.map(t=>`<div class="ts-blk"><div class="ts-wk">${t.w}</div><div class="ts-task">${t.t}</div></div>`).join('')}</div>
+      </div>
+      <div class="proj-grid">
+        <div class="proj-col"><h4>Tech stack</h4><ul>${p.stack.map(s=>`<li>${s}</li>`).join('')}</ul></div>
+        <div class="proj-col"><h4>Backend / API</h4><ul>${p.backend.map(b=>`<li>${b}</li>`).join('')}</ul></div>
+        <div class="proj-col"><h4>Database</h4><ul>${p.db.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+      </div>
+      <div class="proj-col" style="margin-bottom:12px"><h4 style="font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:7px">Deployment</h4><ul style="list-style:none;display:flex;flex-wrap:wrap;gap:5px">${p.deploy.map(x=>`<span class="chip">${x}</span>`).join('')}</ul></div>
+      <div class="res-desc"><div class="lbl">Resume-ready description</div>${p.res}</div>
+    </div>`;
+  prc.appendChild(d);
+});
+
+// ── INTERVIEW ─────────────────────────────────────────────────
+const INTERVIEW=[
+  {title:'Java + OOP',badge:'bo',qs:['Difference between abstract class and interface — when to use each?','Why is Java not 100% OOP?','Explain runtime polymorphism with a real-world example.','How does HashMap work internally? What happens on hash collision?','Why is String immutable? What is the String pool?','What is the Java Memory Model — heap vs stack?','Difference between checked and unchecked exceptions.','What are the SOLID principles? Give one Java example each.','What is a functional interface and how does it relate to lambdas?','Difference between ArrayList, LinkedList, and Vector — when to use each?']},
+  {title:'Spring Boot',badge:'bt',qs:['What is Spring Boot vs Spring Framework — what problem does it solve?','Explain Dependency Injection and Inversion of Control.','Difference between @Component, @Service, @Repository.','How does Spring Data JPA simplify database access?','What is @Transactional — what happens if you do NOT use it?','How does Spring Security integrate with JWT?','How do you handle exceptions globally in Spring Boot?','What is Swagger and how do you document APIs?','Difference between @PathVariable and @RequestParam.','What is a DTO and why should you not return entities from controllers?']},
+  {title:'SQL + Database',badge:'bb',qs:['What are ACID properties — explain each with an example.','Write all types of JOINs with examples.','Explain normalization: 1NF, 2NF, 3NF with examples.','What is an index and what types exist?','Difference between WHERE and HAVING.','What is the N+1 problem in Hibernate and how do you solve it?','Write a query to find the second-highest salary.','Difference between DELETE, TRUNCATE, DROP.','What is a transaction? How do you handle rollback in Spring?','What is an index scan vs a full table scan?']},
+  {title:'Project Discussion Strategy',badge:'bg',qs:['Explain your project in exactly 90 seconds (Front-to-Back structure).','Know every line of code — never add anything you cannot explain.','Prepare: "What was the hardest challenge in this project?"','Be ready to draw your DB schema on a whiteboard.','Explain your REST API design choices — why that structure?','Describe the JWT flow from login to API call step by step.','Prepare 2 improvements you would make with more time.','Know your project\'s limitations — be honest about trade-offs.']},
+];
+const ic=document.getElementById('interview-container');
+INTERVIEW.forEach(iv=>{
+  const d=document.createElement('div');d.className='mock-card';
+  d.innerHTML=`<h3><span class="badge ${iv.badge}" style="margin-right:6px">${iv.title}</span>Must-know questions</h3><div class="qlist">${iv.qs.map((q,i)=>`${i+1}. ${q}`).join('<br>')}</div>`;
+  ic.appendChild(d);
+});
+
+// ── MOCK INTERVIEW PLAN ───────────────────────────────────────
+const MOCK=[
+  {wk:'Week 25',t:'Self-assessment (solo)',badge:'bt',
+   desc:'Record a 20-minute mock interview. Ask yourself: "Tell me about yourself", explain Project 1, answer 5 Java OOP questions. Watch the recording — identify unclear explanations and filler words.',
+   focus:['Tell me about yourself (90-second version)','Project 1 end-to-end explanation','5 Core Java OOP questions','Identify top 3 weakest topics'],
+   metric:'Can explain Project 1 end-to-end without stumbling'},
+  {wk:'Week 26',t:'Peer technical round (45 min)',badge:'bb',
+   desc:'Ask a classmate to conduct a real technical interview. Give them the Java FSD question list. No hints, no pauses. Simulate real pressure. Evaluate: technical depth + communication clarity.',
+   focus:['Java: 8 questions (OOP + Collections)','Spring Boot: 5 questions','SQL: 3 questions','Project walkthrough + 3 cross-questions'],
+   metric:'Score 70%+ on technical questions. Fluent project explanation.'},
+  {wk:'Week 27',t:'Live coding simulation (60 min)',badge:'ba',
+   desc:'Use Pramp or LeetCode contest. Solve 2 DSA problems under time pressure. Practice thinking aloud — no silent coding. Code must be clean and explained.',
+   focus:['Problem 1: Array/String (20 min)','Problem 2: HashMap/Tree (25 min)','Think aloud throughout','Explain time complexity after solving'],
+   metric:'Both problems solved in time. Clean code. Approach explained before coding.'},
+  {wk:'Week 28',t:'Full simulation day',badge:'bo',
+   desc:'Simulate a complete campus placement day: Aptitude test (30 min) → Coding round (1 problem) → Technical interview (45 min) → HR round (15 min). 3-hour block.',
+   focus:['Aptitude: 30-question mock test','Coding: 1 medium LeetCode problem','Technical: full Java FSD round','HR: "Why this company?" + salary discussion'],
+   metric:'Aptitude 75%+. Coding solved. Technical fluent. HR answered confidently.'},
+  {wk:'Weeks 29–30',t:'Weakness-targeted rounds',badge:'bp',
+   desc:'Based on mock feedback, run targeted sessions on top 3 weak areas. If SQL is weak — do a full SQL interview round. If Spring Boot explanation is unclear — explain concepts aloud for 30 min daily.',
+   focus:['Identify top 3 weaknesses from mock notes','30-min daily Q&A on each weakness','3 more Pramp coding sessions','Record improvements — track scores'],
+   metric:'Previous weaknesses now answered confidently without hesitation.'},
+  {wk:'Weeks 31–32',t:'Company-specific mocks',badge:'bg',
+   desc:'Research 3 target companies. Prepare company-specific answers. Run one mock per company type — service, mid-product, startup.',
+   focus:['Research: tech stack, values, recent news per company','Mock: service company style (TCS/Infosys)','Mock: product company style (Zoho/Persistent)','Specific "Why this company?" for each target'],
+   metric:'Genuine, specific "Why this company?" answer for every target company.'},
+];
+const mkc=document.getElementById('mock-container');
+MOCK.forEach(m=>{
+  const d=document.createElement('div');d.className='mock-card';
+  d.innerHTML=`
+    <h3><span class="badge ${m.badge}" style="margin-right:7px">${m.wk}</span>${m.t}</h3>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:10px">${m.desc}</p>
+    <div style="font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:7px">Focus areas</div>
+    <div class="chips" style="margin-bottom:10px">${m.focus.map(f=>`<span class="chip">${f}</span>`).join('')}</div>
+    <div style="background:rgba(20,184,166,.07);border-radius:var(--r);padding:8px 12px;font-size:12px;color:var(--teal)">📊 Success metric: ${m.metric}</div>`;
+  mkc.appendChild(d);
+});
+
+// ── SOFT SKILLS ───────────────────────────────────────────────
+const SOFT=[
+  {day:'Monday',task:'Record "Tell me about yourself" — improve one specific thing vs last week'},
+  {day:'Tuesday',task:'Read one technical blog/docs page in English (30 min) — MDN, Baeldung, Spring docs'},
+  {day:'Wednesday',task:'Explain one technical concept aloud for 5 minutes (teacher mode — no notes)'},
+  {day:'Thursday',task:'Practice one behavioural question using the STAR method (Situation, Task, Action, Result)'},
+  {day:'Friday',task:'Write one LinkedIn post about something technical you learned or built this week'},
+  {day:'Saturday',task:'Full mock interview or project explanation session (minimum 45 minutes)'},
+  {day:'Sunday',task:'Reflection: what improved? One specific thing to work on next week. Rest.'},
+];
+const sfc=document.getElementById('soft-container');
+const sw=document.createElement('div');sw.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:20px';
+SOFT.forEach(s=>{ sw.innerHTML+=`<div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:12px"><div style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:6px">${s.day}</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">${s.task}</div></div>`; });
+sfc.appendChild(sw);
+
+// ── READINESS GAUGES + CHECKLIST ─────────────────────────────
+const GAUGES=[
+  {label:'Java Backend',color:'#f97316',cat:'skills'},
+  {label:'Spring Boot',color:'#14b8a6',cat:'skills'},
+  {label:'React Frontend',color:'#22c55e',cat:'projects'},
+  {label:'DSA Readiness',color:'#f59e0b',cat:'skills'},
+  {label:'CS Fundamentals',color:'#a855f7',cat:'cs'},
+  {label:'Projects Complete',color:'#3b82f6',cat:'projects'},
+  {label:'Interview Prep',color:'#ef4444',cat:'mock'},
+  {label:'Communication',color:'#22c55e',cat:'soft'},
+];
+const gg=document.getElementById('gauge-grid');
+GAUGES.forEach(g=>{
+  gg.innerHTML+=`<div class="gauge-card"><div class="gauge-label">${g.label}<span class="gauge-pct" data-gauge="${g.label}">0%</span></div><div class="gauge-bar"><div class="gauge-fill" data-gauge-bar="${g.label}" style="width:0%;background:${g.color}"></div></div></div>`;
+});
+
+const CHECKLIST=[
+  {cat:'Skills I Must Master',color:'orange',items:['Core Java: OOP, Collections, Exception Handling','Spring Boot: DI, annotations, REST controllers','Spring Data JPA + Hibernate entity relationships','JWT Authentication end-to-end flow','SQL: all JOINs, GROUP BY, subqueries, indexes','React.js: hooks (useState, useEffect), React Router','JavaScript: async/await, closures, ES6 features','Git: daily commits, branching, clean GitHub profile','RESTful API design: DTOs, pagination, status codes','DBMS: ACID, normalization 1NF-3NF, indexing','OOP: 4 pillars + SOLID principles with code examples','Exception handling + GlobalExceptionHandler in Spring']},
+  {cat:'Projects I Must Complete',color:'teal',items:['Project 1: Auth System — deployed on Railway/Render','Project 2: CRUD Dashboard — deployed with pagination','Project 3: Scalable API — Swagger docs live','Project 4: Flagship app — both frontend + backend deployed','All projects have professional READMEs with screenshots','All GitHub repos have live demo links','Can explain every project in 90 seconds','Can answer design decision cross-questions for any project']},
+  {cat:'Concepts I Must Revise (Theory)',color:'purple',items:['DBMS: normalization, ACID, indexing, transactions','OS: processes, threads, deadlock, memory management','CN: HTTP/HTTPS, TCP/IP, REST, cookies vs JWT','OOP design patterns: Singleton, Factory, Observer','SQL optimization: EXPLAIN, N+1 problem, indexes','Java: HashMap internal working, String immutability','Spring Boot: @Transactional, Lazy vs Eager loading','DSA: Arrays, Strings, HashMaps, Stacks, Trees']},
+  {cat:'Interview-Ready Indicators',color:'green',items:['Solved 80+ LeetCode/GFG problems (easy + medium)','Scored 80%+ on 3 full aptitude mock tests','Completed 4+ mock interviews with peers','Can explain all 4 projects without notes in 90 seconds','Resume peer-reviewed and finalized','LinkedIn updated with projects, skills, GitHub link','Applied to 15+ companies','Know "Why this company?" for top 5 target companies','Can write a Spring Boot REST API from scratch in 30 min','Can answer top 30 Java interview questions fluently','Communication: clear, confident, no filler words','Body language: practised on camera — good eye contact']},
+];
+const clc=document.getElementById('checklist-container');
+CHECKLIST.forEach(sec=>{
+  const div=document.createElement('div');
+  div.innerHTML=`<div style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--${sec.color});margin-bottom:10px;margin-top:20px">${sec.cat}</div>
+  <div class="cl-grid">${sec.items.map(item=>`<div class="cl-item" onclick="toggleCL(this)"><div class="cl-box"></div><span>${item}</span></div>`).join('')}</div>`;
+  clc.appendChild(div);
+});
+function toggleCL(el){el.classList.toggle('done');updateChecklist();}
+function updateChecklist(){
+  const total=document.querySelectorAll('.cl-item').length;
+  const done=document.querySelectorAll('.cl-item.done').length;
+  document.getElementById('prog-txt').textContent=`${done} / ${total}`;
+  const pct=Math.round(done/total*100);
+  document.getElementById('prog-bar').style.width=pct+'%';
+  // Update gauges (roughly by category)
+  const cats={skills:['Core Java','Spring Boot','SQL','OOP','JWT','Collections','Exception','Spring Data','DBMS','Arrays'],projects:['Project 1','Project 2','Project 3','Project 4','deployed','GitHub','explain','design'],cs:['DBMS','OS:','CN:','OOP design','SQL optim','Spring Boot: @','DSA:'],mock:['80+ LeetCode','aptitude','mock interview','all 4 projects','Resume','LinkedIn','Applied','Why this','Spring Boot REST','30 Java','Communication','Body language'],soft:['Communication','Body language']};
+  GAUGES.forEach(g=>{
+    const bar=document.querySelector(`[data-gauge-bar="${g.label}"]`);
+    const pctEl=document.querySelector(`[data-gauge="${g.label}"]`);
+    const secMap={'Java Backend':0,'Spring Boot':0,'React Frontend':2,'DSA Readiness':0,'CS Fundamentals':2,'Projects Complete':1,'Interview Prep':3,'Communication':3};
+    const secIdx=secMap[g.label];
+    const sec=CHECKLIST[secIdx];
+    if(!sec)return;
+    const secDone=Array.from(document.querySelectorAll('.cl-item.done')).filter(el=>sec.items.some(i=>el.querySelector('span').textContent.startsWith(i.substring(0,20)))).length;
+    const secTotal=sec.items.length;
+    const p=Math.round(secDone/secTotal*100);
+    bar.style.width=p+'%';
+    pctEl.textContent=p+'%';
+  });
+}
+</script>
+</body>
+</html>
